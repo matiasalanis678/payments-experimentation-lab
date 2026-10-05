@@ -11,6 +11,7 @@ from typing import Any
 
 import duckdb
 import pytest
+import yaml
 
 from analysis.power import compute_baselines, compute_derived
 from analysis.prereg import PREREG_PATH, load_prereg
@@ -20,6 +21,8 @@ PREREG = load_prereg()
 SETTINGS = load_settings()
 TAG = "prereg-v1"
 FROZEN_FILES = ("config/prereg.yaml", "reports/preregistration.md")
+AMENDMENT_TAG = "prereg-amendment-1"
+AMENDMENT_FILE = "reports/prereg_amendments.md"
 # Numbers too generic to attribute to the pre-registration (0, 1, 2, halves, percent scaling).
 TRIVIAL_NUMBERS = {0, 1, -1, 2, 0.5, 100}
 
@@ -101,8 +104,8 @@ def _git(*args: str) -> subprocess.CompletedProcess[str]:
     return subprocess.run(["git", *args], cwd=PROJECT_ROOT, capture_output=True, text=True)
 
 
-def _tag_exists() -> bool:
-    return _git("rev-parse", "-q", "--verify", f"refs/tags/{TAG}").returncode == 0
+def _tag_exists(tag: str = TAG) -> bool:
+    return _git("rev-parse", "-q", "--verify", f"refs/tags/{tag}").returncode == 0
 
 
 def test_unblinding_requires_prereg_tag() -> None:
@@ -117,6 +120,18 @@ def test_preregistration_unchanged_since_tag(rel: str) -> None:
     tagged = _git("show", f"{TAG}:{rel}")
     assert tagged.returncode == 0, f"{rel} missing from {TAG}"
     assert (PROJECT_ROOT / rel).read_text() == tagged.stdout, f"{rel} changed since {TAG}; log deviations elsewhere"
+
+
+def test_amendments_frozen_and_committed_before_unblinding() -> None:
+    if not _tag_exists(AMENDMENT_TAG):
+        assert not SETTINGS.unblinded, f"analysis.unblinded is true but tag {AMENDMENT_TAG} does not exist"
+        pytest.skip(f"tag {AMENDMENT_TAG} not created yet")
+    tagged = _git("show", f"{AMENDMENT_TAG}:{AMENDMENT_FILE}")
+    assert tagged.returncode == 0
+    assert (PROJECT_ROOT / AMENDMENT_FILE).read_text() == tagged.stdout, f"{AMENDMENT_FILE} changed since tag"
+    settings_at_tag = yaml.safe_load(_git("show", f"{AMENDMENT_TAG}:config/settings.yaml").stdout)
+    assert settings_at_tag["analysis"]["unblinded"] is False, "amendments must be committed before unblinding"
+    assert _git("merge-base", "--is-ancestor", AMENDMENT_TAG, "HEAD").returncode == 0
 
 
 def test_prereg_path_is_config() -> None:
