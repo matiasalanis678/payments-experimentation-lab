@@ -1,0 +1,196 @@
+# Machine-readable pre-registration for exp_remove_cvc. Frozen at git tag prereg-v1.
+# Human-readable rationale: reports/preregistration.md.
+# Phase 5 code reads every analysis parameter from this file; tests/test_prereg.py fails if analysis
+# code hardcodes any value below, if `baselines` cannot be reproduced from pre-period data, if the
+# dispute margin does not follow from the economics, or if this file changes after the tag.
+
+version: 1
+experiment_id: exp_remove_cvc
+
+population:
+  randomization_unit: customer
+  analysis_population: exposed            # marts.dim_experiment.is_exposed
+  balance_covariates: [country, card_brand, card_funding, is_returning, account_age_band]
+
+# Applied before launch (salt v1 rejected, v2 selected). Recorded so the A/A tooling reads it from here.
+rerandomization:
+  max_abs_preperiod_z: 2.0
+  min_covariate_p: 0.05
+  rejected_salts: [exp_remove_cvc_v1]
+  selected_salt: exp_remove_cvc_v2
+
+srm:
+  test: chi_square
+  expected_treatment_share: 0.5
+  alpha: 0.001                             # p below this means sample ratio mismatch: stop and report
+
+alpha: 0.05
+power: 0.8
+
+windows:                                   # experiment weeks, inclusive
+  full: {first_week: 1, last_week: 8}
+  steady_state: {first_week: 3, last_week: 8}
+
+primary:
+  metric: checkout_conversion_rate
+  estimator: delta_method_diff             # unadjusted, customer-clustered delta method
+  window: full
+  alternative: two-sided                   # scipy/statsmodels vocabulary
+  mde_relative: 0.01                       # smallest lift worth acting on (see preregistration.md)
+
+secondary:                                 # reported next to the primary; none can replace it
+  cuped:
+    metric: checkout_conversion_rate
+    estimator: cuped_delta_method
+    covariate: pre_period_conversion
+    window: full
+    purpose: variance_reduction
+  account_age_adjusted:
+    metric: checkout_conversion_rate
+    estimator: regression_adjusted_delta_method
+    covariates: [account_age_band]
+    window: full
+    purpose: robustness
+  steady_state:
+    metric: checkout_conversion_rate
+    estimator: delta_method_diff
+    window: steady_state
+    purpose: novelty_sensitivity
+  naive_binomial:
+    metric: checkout_conversion_rate
+    estimator: naive_two_proportion
+    window: full
+    purpose: ci_width_diagnostic
+  weekly_lift:
+    metric: checkout_conversion_rate
+    estimator: delta_method_diff
+    by: experiment_week
+    purpose: novelty_descriptive
+
+guardrails:
+  dispute_rate:
+    estimator: delta_method_diff
+    population: matured_successful_charges
+    window: full
+    test: non_inferiority
+    alpha_one_sided: 0.025
+    margin_absolute: 0.00214926             # = derived.dispute_margin_absolute (break-even at the MDE)
+  authorization_rate:
+    estimator: delta_method_diff
+    window: full
+    test: non_inferiority
+    alpha_one_sided: 0.025
+    margin_absolute: -0.01                 # ASSUMPTION: operational limit on issuer decline rate
+  revenue_per_transaction:
+    estimator: delta_method_diff
+    robustness_estimator: cluster_bootstrap
+    bootstrap_reps: 2000
+    window: full
+    test: non_inferiority
+    alpha_one_sided: 0.025
+    margin_relative: -0.02                 # ASSUMPTION: basket size may not shrink by more than 2%
+
+early_dispute_read:
+  vantage: experiment_end
+  reads: [naive_observed, lag_adjusted, matured_final]
+  arrival_curve:
+    fit_on: pre_period_charges_matured_by_experiment_end
+    method: empirical_cdf
+  hypothesis: >
+    The lag-adjusted read understates the treatment dispute increase, because treatment adds fraud
+    disputes and fraud disputes arrive later than the pre-period mix the arrival curve was fit on.
+
+segments:
+  exploratory: true
+  dimensions: [risk_score_band, country, card_brand]
+  targetable_dimension: risk_score_band     # the only dimension a ship-to-segment decision can use
+  metrics: [checkout_conversion_rate, dispute_rate, net_value_per_session]
+  correction: holm
+  family: dimension_x_metric
+
+economics:
+  window: steady_state                      # business case uses the post-novelty lift
+  annualization_days: 365
+  assumptions:                              # ASSUMPTIONS, not facts. Sensitivity grid below.
+    contribution_margin_rate: 0.3            # merchant margin on order value before payment costs
+    processing_fee_rate: 0.029               # Stripe standard US card pricing (public list price)
+    processing_fee_fixed_usd: 0.3
+    dispute_fee_usd: 15.0                    # Stripe US dispute fee (public list price)
+    dispute_ops_cost_usd: 20.0               # staff time to review and respond to a dispute
+    dispute_loss_rate: 0.7                   # share of disputes lost (amount returned to cardholder)
+  sensitivity_grid:
+    contribution_margin_rate: [0.2, 0.3, 0.4]
+    dispute_loss_rate: [0.5, 0.7, 0.9]
+    dispute_ops_cost_usd: [10.0, 20.0, 40.0]
+
+# Frozen from pre-period data (exposed customers, both arms pooled, before any treatment) and
+# in-window traffic counts by analysis/power.py. Reproducibility is tested.
+baselines:
+  preperiod:
+    conversion_rate: 0.525921
+    conversion_design_effect: 1.77662
+    conversion_effective_cluster_size: 9.31949
+    conversion_icc: 0.0933494
+    dispute_rate: 0.00257719
+    dispute_design_effect: 1.00385
+    dispute_effective_cluster_size: 5.7115
+    dispute_icc: 0.000817513
+    revenue_per_transaction_usd: 68.1301
+    attempts_per_session: 0.577736
+    authorization_rate: 0.924169
+    capture_rate: 0.985008
+    observed_dispute_loss_rate: 0.607143
+    customers: 101716
+    sessions: 516454
+  traffic:
+    experiment_days: 56
+    exposed_customers: 200000
+    sessions: 1509853
+    sessions_per_day: 26961.7
+    effective_cluster_size: 16.1984
+  risk_bands:
+    high:
+      session_share: 0.0464787
+      sessions: 70176
+      effective_cluster_size: 13.2671
+      preperiod_conversion_rate: 0.369876
+      preperiod_dispute_rate: 0.0114336
+      preperiod_matured_charges: 2274
+    low:
+      session_share: 0.607826
+      sessions: 917728
+      effective_cluster_size: 17.5649
+      preperiod_conversion_rate: 0.538719
+      preperiod_dispute_rate: 0.00195358
+      preperiod_matured_charges: 219597
+    medium:
+      session_share: 0.345695
+      sessions: 521949
+      effective_cluster_size: 14.19
+      preperiod_conversion_rate: 0.484456
+      preperiod_dispute_rate: 0.00492532
+      preperiod_matured_charges: 49743
+
+derived:
+  margin_per_sale_usd: 18.1633
+  cost_per_dispute_usd: 82.6911
+  dispute_margin_absolute: 0.00214926
+  dispute_margin_relative_to_baseline: 0.833953
+
+decision_rules:
+  order: [validity, primary, operational_guardrails, segments, decision]
+  validity: srm_p_value_above_srm_alpha
+  primary_significant_positive: two_sided_p_below_alpha_and_lift_positive
+  operational_guardrails: [authorization_rate, revenue_per_transaction]   # NI must pass, else dont_ship
+  global_criteria:
+    - dispute_rate_non_inferior
+    - net_value_ci_lower_above_zero          # steady-state window, two-sided 95% CI
+  band_status:                               # per risk_score_band, Holm-adjusted one-sided tests
+    qualifies: dispute_non_inferior_and_net_value_above_zero
+    harmful: net_value_below_zero_or_dispute_increase_above_margin
+    inconclusive: otherwise
+  decision:
+    dont_ship: srm_fails_or_primary_not_significant_positive_or_operational_guardrail_fails
+    ship_globally: global_criteria_pass_and_no_band_harmful
+    ship_to_segment: otherwise_if_any_band_qualifies   # staged rollout plus confirmatory test
+    otherwise: dont_ship

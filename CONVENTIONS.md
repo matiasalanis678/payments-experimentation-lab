@@ -10,6 +10,8 @@ Payments experimentation lab: synthetic Stripe-like checkout data, a dbt + DuckD
 - Small typed functions, docstrings on public functions.
 - Each phase ends with a review checkpoint before the next begins.
 - Blindness: no in-window treatment vs control comparison runs while `analysis.unblinded` is false in config/settings.yaml. Variant splits are pre-period only or tagged `in_window_variant_split` and gated in scripts/mf_queries.sh (tests/test_dbt_config.py enforces this).
+- Every analysis parameter (metrics, estimators, alpha, margins, windows, segments, correction, decision rules, economic assumptions) is read from config/prereg.yaml via `analysis.prereg.load_prereg`; never hardcode them (tests/test_prereg.py scans analysis/ for literals). Interpret prereg strings by passing them to libraries or dispatching by function name, not by comparing to literals.
+- config/prereg.yaml and reports/preregistration.md are frozen at tag prereg-v1. Log any deviation in reports/deviations.md instead of editing them.
 - Analysis population is exposed customers only: build every SRM and analysis input on `analysis.population.EXPOSED_CUSTOMERS_SQL`.
 
 ## Commands

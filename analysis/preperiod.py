@@ -18,13 +18,14 @@ import pandas as pd
 from scipy import stats
 
 from analysis.population import EXPOSED_CUSTOMERS_SQL
+from analysis.prereg import load_prereg
 from analysis.stats import RatioDiff, clustered_ratio, diff_in_ratios
 from generate.assignment import CONTROL, TREATMENT, assign_variants
 from generate.settings import load_settings
 
-COVARIATES = ("country", "card_brand", "card_funding", "is_returning", "account_age_band")
-MAX_ABS_Z = 2.0  # salt selection rule: pre-period conversion |z| below this
-MIN_COVARIATE_P = 0.05  # salt selection rule: every covariate chi-square p above this
+PREREG = load_prereg()
+COVARIATES = tuple(PREREG["population"]["balance_covariates"])
+RULE = PREREG["rerandomization"]  # salt selection rule, fixed before any candidate was scanned
 
 
 @dataclass(frozen=True)
@@ -34,9 +35,10 @@ class AAResult:
     conversion: RatioDiff
     covariate_p_values: dict[str, float]
 
-    def passes(self, max_abs_z: float = MAX_ABS_Z, min_p: float = MIN_COVARIATE_P) -> bool:
-        """True if pre-period conversion and all covariates are balanced."""
-        return abs(self.conversion.z) < max_abs_z and min(self.covariate_p_values.values()) > min_p
+    def passes(self) -> bool:
+        """True if the pre-registered re-randomization rule accepts this assignment."""
+        balanced_covariates = min(self.covariate_p_values.values()) > RULE["min_covariate_p"]
+        return abs(self.conversion.z) < RULE["max_abs_preperiod_z"] and balanced_covariates
 
 
 def load_customers(con: duckdb.DuckDBPyConnection) -> pd.DataFrame:

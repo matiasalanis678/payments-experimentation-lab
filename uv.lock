@@ -1348,6 +1348,7 @@ dependencies = [
     { name = "pyyaml" },
     { name = "scipy" },
     { name = "statsmodels" },
+    { name = "tabulate" },
 ]
 
 [package.dev-dependencies]
@@ -1369,6 +1370,7 @@ requires-dist = [
     { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "scipy", specifier = ">=1.18.1" },
     { name = "statsmodels", specifier = ">=0.15.0" },
+    { name = "tabulate", specifier = ">=0.10.0" },
 ]
 
 [package.metadata.requires-dev]

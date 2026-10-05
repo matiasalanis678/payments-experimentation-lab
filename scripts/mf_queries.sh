@@ -16,6 +16,16 @@ run() {
   local name=$1; shift
   echo "mf query --saved-query $name $*"
   uv run mf query --saved-query "$name" "$@" --csv "$OUT/$name.csv" > /dev/null
+  # Parallel float sums differ in the last digits run to run; round so outputs are stable:
+  # USD totals to the cent, rates and per-transaction values to 8 decimals.
+  uv run python - "$OUT/$name.csv" <<'PY'
+import sys
+import pandas as pd
+df = pd.read_csv(sys.argv[1])
+num = df.select_dtypes("float").columns
+df[num] = df[num].apply(lambda col: col.round(2) if col.abs().max() >= 1000 else col.round(8))
+df.to_csv(sys.argv[1], index=False)
+PY
 }
 
 UNBLINDED=$(uv run python -c "from generate.settings import load_settings; print(str(load_settings().unblinded).lower())")

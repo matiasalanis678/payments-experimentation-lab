@@ -15,6 +15,7 @@ dependencies = [
     "pyyaml>=6.0.3",
     "scipy>=1.18.1",
     "statsmodels>=0.15.0",
+    "tabulate>=0.10.0",
 ]
 
 [dependency-groups]
