@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Full history and tags so the prereg-v1 / prereg-amendment-1 freeze checks run.
+          fetch-depth: 0
+          fetch-tags: true
+
+      - uses: astral-sh/setup-uv@v10
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --locked
+
+      - name: Lint
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+
+      - name: Generate data
+        run: make generate
+
+      - name: dbt build
+        run: make dbt
+
+      - name: Validate the semantic layer
+        run: make semantic
+
+      - name: Run the pre-registered analysis
+        run: make analyze
+
+      - name: Verify the pre-registration
+        run: make verify-prereg
+
+      - name: Tests (the slow coverage simulation is excluded)
+        run: make test
