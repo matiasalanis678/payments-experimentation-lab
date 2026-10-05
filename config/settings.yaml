@@ -1,0 +1,27 @@
+# Project settings. Everything here is knowledge a real analyst would have:
+# experiment design, dates, scale, and the master random seed.
+# The data-generating process and planted effects live in config/truth.yaml.
+
+seed: 20260601
+
+experiment:
+  id: exp_remove_cvc
+  name: Remove CVC field from checkout
+  start_date: 2026-06-01        # a Monday
+  weeks: 8
+  hash_salt: exp_remove_cvc_v1  # salt for customer-level hash bucketing
+  treatment_share: 0.5
+  # control = CVC field shown, treatment = CVC field removed
+
+analysis:
+  dispute_maturity_days: 60      # a charge is "matured" once this many days have passed
+  analysis_date: 2026-09-25      # experiment end (2026-07-27) + 60 days
+  pre_period_weeks: 4            # pre-experiment window kept for CUPED
+
+simulation:
+  n_customers: 200000
+
+paths:
+  raw_dir: data/raw
+  truth_dir: data/truth          # hidden labels; never loaded into the warehouse
+  warehouse: data/warehouse.duckdb

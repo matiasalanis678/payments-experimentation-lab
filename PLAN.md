@@ -1,0 +1,84 @@
+# Project Plan: Payments Experimentation Lab
+
+Portfolio project for a Stripe Data Analyst Intern application. Author: Matias, a finance BI developer (SQL, Power BI semantic models, DAX). The posting emphasizes SQL, A/B testing, extending a metrics semantic layer, data pipelines, and AI-assisted analysis. Goal: a reproducible payments experimentation project that proves all of those, shippable in 7 days on a MacBook Pro M2 Pro with 16GB RAM.
+
+Process: execute phase by phase. Each phase ends with a review checkpoint (what was built, key decisions, anything to review, test results) before the next begins.
+
+## The story
+A merchant tests removing the CVC field from checkout (variant B). Hypothesis: conversion rises. Risks: fraud and disputes rise, and some issuers decline more without CVC. The final recommendation must weigh the conversion win against guardrails, including by risk segment.
+
+## Stack
+- Python 3.12 managed with uv
+- DuckDB warehouse (single file: data/warehouse.duckdb)
+- dbt-core + dbt-duckdb
+- MetricFlow via dbt-metricflow with its DuckDB extra (check PyPI for the current extra name; if versions conflict, use the dbt-core version dbt-metricflow pins)
+- Analysis: pandas, numpy, scipy, statsmodels
+- Charts: matplotlib, static PNGs, clean minimal style
+- Makefile where `make all` rebuilds everything from scratch
+- ruff + pytest
+
+## Phase 1: Synthetic data generator (src/generate/)
+- 8-week experiment, ~200k customers, ~1.5M checkout sessions. Fully seeded and deterministic.
+- Tables mirror Stripe API objects where sensible: customers, checkout_sessions, charges (amount in minor units, currency, status, flattened outcome type/reason, card brand, country), disputes (charge_id, reason, amount, created, status), experiment_assignments (customer_id, variant, assigned_at).
+- Randomize at the CUSTOMER level via hash of customer_id, 50/50.
+- Each customer has a hidden risk_tier (low/medium/high) plus observable features (country, card brand, new vs returning, account age).
+- Funnel: session -> payment attempt -> authorization -> success. Disputes arrive 7 to 60 days after the charge.
+- Generate dispute data through experiment end + 60 days so all charges can mature.
+- Plant effects in config/truth.yaml (analysis code must NEVER read this file):
+  - Conversion (session -> successful charge): +2.5% relative in B
+  - Authorization rate: -0.5pp in B
+  - Dispute rate: +40% relative in B overall, concentrated in high risk, ~0 change in low risk
+  - Novelty effect: B's conversion lift larger in week 1, decaying after
+- Write parquet to data/raw/ and load into DuckDB.
+- Tests: row counts, referential integrity, assignment balance, baseline rates within expected bands.
+
+## Phase 2: dbt models (dbt/)
+- staging: stg_customers, stg_checkout_sessions, stg_charges, stg_disputes, stg_assignments
+- intermediate: int_session_outcomes (one row per session with attempted/authorized/succeeded flags), int_charge_disputes (dispute lag + is_matured flag relative to a configurable analysis_date)
+- marts: fct_checkout_sessions, fct_charges, dim_customers, dim_experiment
+- dbt tests: unique, not_null, relationships, accepted_values on variant/status, plus a custom test that every customer has exactly one variant.
+- Document every model and column in schema.yml.
+
+## Phase 3: Semantic layer (MetricFlow)
+- Semantic models on fct_checkout_sessions and fct_charges with entities, dimensions (variant, country, card_brand, is_returning, risk_score_band, metric_time), and measures. Include a time spine model.
+- Metrics:
+  - checkout_conversion_rate = successful sessions / sessions (ratio)
+  - authorization_rate = authorized charges / attempted charges (ratio)
+  - revenue_per_transaction = successful charge volume / successful charges (ratio)
+  - dispute_rate = disputes / successful charges, matured charges only (ratio with filter)
+  - total_payment_volume (simple)
+- scripts/mf_queries.sh with 5 example `mf query` commands (by variant, by week, by country) saving outputs to reports/mf/.
+- README section explaining the semantic layer for a finance stakeholder, briefly drawing the parallel to Power BI semantic models.
+
+## Phase 4: Pre-registration and power (analysis/)
+- Write reports/preregistration.md BEFORE computing any treatment effects: hypothesis, primary metric (checkout conversion), guardrails (dispute rate with an explicit non-inferiority margin, authorization rate, revenue per transaction), alpha 0.05, power 0.8, MDE, and decision rules for ship / don't ship / ship to segment.
+- Power calculation: required sample per arm for the conversion MDE and the implied duration given daily traffic. Note that the dispute guardrail needs matured cohorts, so it reads out later.
+- git commit with message "pre-registration" before Phase 5 starts.
+
+## Phase 5: Experiment analysis (analysis/)
+- Sample ratio mismatch check (chi-square) first. If it fails, stop and report.
+- Primary metric: difference in proportions with 95% CI. Randomization is per customer but metrics are per session/charge, so use the delta method for ratio metrics. Also run the naive test and show how much it understates the CI width.
+- Guardrails: authorization rate, revenue per transaction (Welch t-test or bootstrap), dispute rate as a one-sided non-inferiority test on matured charges.
+- Early vs final readout: run the dispute guardrail at experiment end (immature) and at analysis_date (matured). Show how the early read understates risk.
+- Segments: build a simple risk score from OBSERVABLE features only (a real company never sees the true tier), then estimate effects by risk band, country, and card brand with Holm correction.
+- Novelty: lift by week.
+- Stretch if time allows: CUPED using pre-period conversion.
+- tests/test_recovery.py is the ONLY code allowed to read truth.yaml. Assert the 95% CIs contain the planted effects.
+
+## Phase 6: Decision memo and charts (reports/)
+- reports/experiment_readout.md, one page, written for a product manager. Order: recommendation first, results table (metric, control, treatment, lift, CI, p-value, verdict), guardrail outcome, segment finding, risks, next step.
+- Let the data drive conclusions; do not hardcode them. If the dispute guardrail breaches overall but not in low risk, recommend a follow-up test shipping B to low risk only.
+- Charts: funnel by variant, forest plot of lifts with CIs, lift by week, dispute rate by risk band, dispute maturation curve (early vs matured).
+
+## Phase 7: Polish
+- README: 3-sentence summary and headline results table at the top, Mermaid architecture diagram, how to run (`make all`), project structure, limitations of synthetic data, and what I'd do next with real data.
+- GitHub Actions: ruff, pytest, dbt build on push.
+- Clean, meaningful commit history.
+
+## Conventions (CONVENTIONS.md)
+- Analysis code never reads config/truth.yaml; only tests/test_recovery.py may.
+- All randomness seeded from config/settings.yaml.
+- Transformations in dbt SQL; Python only for generation and statistics.
+- No em dashes in any written docs or comments.
+- Small typed functions, docstrings on public functions.
+- Each phase ends with a review checkpoint before the next begins.

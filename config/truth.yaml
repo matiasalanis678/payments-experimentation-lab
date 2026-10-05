@@ -1,0 +1,118 @@
+# Ground truth for the synthetic world.
+# ONLY src/generate/ (which plants these values) and tests/test_recovery.py may read this file.
+# Analysis code must never read it; tests/test_conventions.py enforces that.
+
+effects:
+  conversion:
+    # Session -> successful (captured) charge, relative lift in treatment.
+    # The steady-state lift is the long-run effect the business keeps after novelty wears off.
+    steady_state_relative_lift: 0.025
+    # Week w lift = steady_state + week1_extra * decay ** (w - 1)
+    # Gives roughly 5.5%, 3.7%, 3.0%, 2.7%, then about 2.5% from week 5 on.
+    novelty_week1_extra_relative_lift: 0.03
+    novelty_weekly_decay: 0.4
+  authorization:
+    # Absolute change in P(authorized | attempted). Some issuers decline more without CVC.
+    absolute_delta_by_card_brand:
+      visa: -0.004
+      mastercard: -0.004
+      amex: -0.010
+      discover: -0.008
+    expected_overall_absolute_delta: -0.005   # brand-mix weighted, about -0.5pp
+  dispute:
+    # Disputes per successful charge, relative lift in treatment.
+    overall_relative_lift: 0.40
+    relative_lift_by_risk_tier:
+      low: 0.0
+      medium: 0.25
+      # high is solved by the generator so the overall lift hits overall_relative_lift
+  revenue_per_transaction:
+    relative_lift: 0.0
+
+world:
+  new_customer_share: 0.35
+  sessions_per_week:
+    gamma_shape: 0.9             # heavy-tailed activity across customers
+    mean: 0.985                  # tuned for about 1.5M experiment-window sessions at 200k customers
+  account_age_days:              # returning customers only
+    log_mean: 6.0
+    log_sd: 1.0
+    max: 3650
+
+  countries:
+    US: {weight: 0.45, currency: usd, amount_multiplier: 1.00, attempt_logit: 0.00, auth_logit: 0.00, risk: 0.0}
+    GB: {weight: 0.12, currency: gbp, amount_multiplier: 0.95, attempt_logit: 0.05, auth_logit: 0.05, risk: 0.0}
+    CA: {weight: 0.08, currency: cad, amount_multiplier: 0.95, attempt_logit: 0.00, auth_logit: 0.00, risk: 0.0}
+    DE: {weight: 0.08, currency: eur, amount_multiplier: 0.90, attempt_logit: -0.05, auth_logit: 0.10, risk: -0.2}
+    FR: {weight: 0.07, currency: eur, amount_multiplier: 0.90, attempt_logit: -0.05, auth_logit: 0.00, risk: 0.0}
+    AU: {weight: 0.06, currency: aud, amount_multiplier: 1.00, attempt_logit: 0.00, auth_logit: 0.00, risk: 0.0}
+    JP: {weight: 0.05, currency: jpy, amount_multiplier: 0.85, attempt_logit: 0.10, auth_logit: -0.30, risk: -0.2}
+    BR: {weight: 0.05, currency: brl, amount_multiplier: 0.60, attempt_logit: -0.15, auth_logit: -0.80, risk: 0.8}
+    MX: {weight: 0.04, currency: mxn, amount_multiplier: 0.60, attempt_logit: -0.15, auth_logit: -0.70, risk: 0.8}
+
+  currencies:                    # exponent = number of minor-unit decimals (JPY is zero-decimal)
+    usd: {usd_per_unit: 1.0, exponent: 2}
+    gbp: {usd_per_unit: 1.27, exponent: 2}
+    eur: {usd_per_unit: 1.09, exponent: 2}
+    cad: {usd_per_unit: 0.73, exponent: 2}
+    aud: {usd_per_unit: 0.66, exponent: 2}
+    jpy: {usd_per_unit: 0.0067, exponent: 0}
+    brl: {usd_per_unit: 0.18, exponent: 2}
+    mxn: {usd_per_unit: 0.055, exponent: 2}
+
+  card_brands:
+    visa: {weight: 0.50, auth_logit: 0.0}
+    mastercard: {weight: 0.30, auth_logit: 0.0}
+    amex: {weight: 0.13, auth_logit: 0.2}
+    discover: {weight: 0.07, auth_logit: -0.2}
+
+  card_funding:
+    credit: {weight: 0.55, auth_logit: 0.0, risk: 0.0}
+    debit: {weight: 0.37, auth_logit: -0.1, risk: 0.1}
+    prepaid: {weight: 0.08, auth_logit: -0.9, risk: 1.2}
+
+  risk:
+    # Latent score = observable contributions + Gaussian noise, cut into tiers by quantile.
+    tier_shares: {low: 0.6, medium: 0.3, high: 0.1}
+    new_customer: 1.0
+    young_account_days: 90
+    young_account: 0.5
+    noise_sd: 0.6
+
+  funnel:
+    attempt_cap: 0.9              # P(attempt) = cap * expit(eta); keeps treatment probabilities below 1
+    attempt_intercept: 0.35
+    returning_attempt_logit: 0.35
+    customer_effect_sd: 0.9       # customer-level propensity, creates within-customer correlation
+    auth_base_rate: 0.93
+    auth_logit_by_tier: {low: 0.3, medium: 0.0, high: -0.8}
+    capture_rate: 0.985           # authorized charges that are captured (rest are voided)
+    blocked_share_of_declines_by_tier: {low: 0.15, medium: 0.25, high: 0.50}
+    issuer_decline_reasons:
+      insufficient_funds: 0.35
+      do_not_honor: 0.25
+      generic_decline: 0.25
+      incorrect_cvc: 0.10         # impossible in treatment, where no CVC is collected
+      expired_card: 0.05
+    elevated_risk_level_by_tier: {low: 0.02, medium: 0.08, high: 0.25}
+    charge_delay_seconds: {min: 30, max: 900}
+
+  amounts:
+    median_usd: 55.0
+    log_sd: 0.75
+    min_usd: 1.0
+
+  disputes:
+    base_rate_by_tier: {low: 0.0015, medium: 0.005, high: 0.02}
+    reason_mix_by_tier:
+      low: {fraudulent: 0.25, product_not_received: 0.30, duplicate: 0.15, credit_not_processed: 0.15, product_unacceptable: 0.15}
+      medium: {fraudulent: 0.45, product_not_received: 0.25, duplicate: 0.10, credit_not_processed: 0.10, product_unacceptable: 0.10}
+      high: {fraudulent: 0.75, product_not_received: 0.10, duplicate: 0.05, credit_not_processed: 0.05, product_unacceptable: 0.05}
+    # Treatment-induced extra disputes are fraud. Fraud disputes arrive later, so early reads miss more of them.
+    lag_days:
+      min: 7
+      max: 60
+      fraudulent: {gamma_shape: 3.0, gamma_scale: 10.0}
+      other: {gamma_shape: 1.5, gamma_scale: 10.0}
+    lost_rate: {fraudulent: 0.70, other: 0.50}
+    status_windows_days: {needs_response: 7, under_review: 45}
