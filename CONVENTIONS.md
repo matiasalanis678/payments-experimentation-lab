@@ -21,6 +21,7 @@ Payments experimentation lab: synthetic Stripe-like checkout data, a dbt + DuckD
 - `make dbt` runs `dbt build` from inside dbt/ (all dbt and mf commands run from dbt/; the profile path is relative to it).
 - dbt vars in dbt/dbt_project.yml must match config/settings.yaml (tests/test_dbt_config.py).
 - `make charts` writes reports/figures/; `make readout` writes reports/experiment_readout.md from the results.
+- `make verify-prereg` checks with git that the pre-registration tags predate unblinding.
 - `make coverage` (slow, about 3 minutes, not in `make all`) runs the CI coverage simulation into reports/coverage.md and reports/coverage.json.
 - `make analyze` runs the pre-registered analysis (analysis/experiment.py) into reports/results/.
 - `make semantic` runs `mf validate-configs`; `make mf-queries` runs scripts/mf_queries.sh into reports/mf/.

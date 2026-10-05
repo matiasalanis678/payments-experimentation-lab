@@ -1,7 +1,7 @@
 # Homebrew tools (gh) live outside the default non-login PATH on Apple Silicon.
 export PATH := /opt/homebrew/bin:$(PATH)
 
-.PHONY: all install generate dbt dbt-docs semantic mf-queries power analyze charts readout coverage test test-fast lint format clean
+.PHONY: verify-prereg all install generate dbt dbt-docs semantic mf-queries power analyze charts readout coverage test test-fast lint format clean
 
 all: clean install generate dbt semantic mf-queries power analyze charts readout lint test
 
@@ -31,6 +31,9 @@ charts:
 
 readout:
 	uv run python -m analysis.readout
+
+verify-prereg:
+	scripts/verify_prereg.sh
 
 # Slow (minutes): CI coverage across many seeds. Not part of `make all`.
 coverage:
