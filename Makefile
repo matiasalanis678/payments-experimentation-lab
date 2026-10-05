@@ -1,6 +1,3 @@
-# Homebrew tools (gh) live outside the default non-login PATH on Apple Silicon.
-export PATH := /opt/homebrew/bin:$(PATH)
-
 .PHONY: verify-prereg all install generate dbt dbt-docs semantic mf-queries power analyze charts readout coverage test test-fast lint format clean
 
 all: clean install generate dbt semantic mf-queries power analyze charts readout lint test
