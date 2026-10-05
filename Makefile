@@ -1,9 +1,9 @@
 # Homebrew tools (gh) live outside the default non-login PATH on Apple Silicon.
 export PATH := /opt/homebrew/bin:$(PATH)
 
-.PHONY: all install generate dbt dbt-docs semantic mf-queries power test test-fast lint format clean
+.PHONY: all install generate dbt dbt-docs semantic mf-queries power analyze test test-fast lint format clean
 
-all: clean install generate dbt semantic mf-queries power lint test
+all: clean install generate dbt semantic mf-queries power analyze lint test
 
 install:
 	uv sync
@@ -23,6 +23,9 @@ mf-queries:
 power:
 	uv run python -m analysis.power
 
+analyze:
+	uv run python -m analysis.experiment
+
 dbt-docs:
 	cd dbt && uv run dbt docs generate
 
@@ -41,4 +44,4 @@ format:
 	uv run ruff format .
 
 clean:
-	rm -rf data/raw data/truth data/warehouse.duckdb data/warehouse.duckdb.wal dbt/target dbt/logs reports/mf
+	rm -rf data/raw data/truth data/warehouse.duckdb data/warehouse.duckdb.wal dbt/target dbt/logs reports/mf reports/results

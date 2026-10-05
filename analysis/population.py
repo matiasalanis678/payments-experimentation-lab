@@ -21,4 +21,4 @@ EXPOSED_CUSTOMERS_SQL = """
 def srm_counts(con: duckdb.DuckDBPyConnection) -> dict[str, int]:
     """Exposed customers per variant: the input to the sample ratio mismatch check."""
     rows = con.sql(f"select variant, count(*) from ({EXPOSED_CUSTOMERS_SQL}) group by variant").fetchall()
-    return {variant: int(n) for variant, n in rows}
+    return {variant: int(n) for variant, n in sorted(rows)}

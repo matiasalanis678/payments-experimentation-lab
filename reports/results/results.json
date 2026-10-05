@@ -1,0 +1,775 @@
+{
+  "srm": {
+    "label": "pre-registered",
+    "counts": {
+      "control": 99738,
+      "treatment": 100262
+    },
+    "treatment_share": 0.50131,
+    "chi2": 1.37288,
+    "p_value": 0.241317676,
+    "passed": true
+  },
+  "primary": {
+    "label": "pre-registered",
+    "metric": "checkout_conversion_rate",
+    "window": "full",
+    "effect": {
+      "method": "delta_method_diff",
+      "control": 0.510493281,
+      "treatment": 0.526201204,
+      "diff": 0.0157079228,
+      "se": 0.0012931792,
+      "relative": 0.0307700873,
+      "relative_se": 0.0025718451,
+      "n_control": 99738,
+      "n_treatment": 100262,
+      "ci_low": 0.0131733382,
+      "ci_high": 0.0182425075,
+      "relative_ci_low": 0.0257293636,
+      "relative_ci_high": 0.0358108111,
+      "p_value": 5.96925177e-34
+    }
+  },
+  "naive_vs_clustered": {
+    "label": "pre-registered",
+    "naive": {
+      "method": "naive_two_proportion",
+      "control": 0.510493281,
+      "treatment": 0.526201204,
+      "diff": 0.0157079228,
+      "se": 0.000813192629,
+      "relative": 0.0307700873,
+      "relative_se": 0.001617802,
+      "n_control": 751052,
+      "n_treatment": 758801,
+      "ci_low": 0.0141140946,
+      "ci_high": 0.0173017511,
+      "relative_ci_low": 0.0275992537,
+      "relative_ci_high": 0.033940921,
+      "p_value": 3.91276545e-83
+    },
+    "clustered": {
+      "method": "delta_method_diff",
+      "control": 0.510493281,
+      "treatment": 0.526201204,
+      "diff": 0.0157079228,
+      "se": 0.0012931792,
+      "relative": 0.0307700873,
+      "relative_se": 0.0025718451,
+      "n_control": 99738,
+      "n_treatment": 100262,
+      "ci_low": 0.0131733382,
+      "ci_high": 0.0182425075,
+      "relative_ci_low": 0.0257293636,
+      "relative_ci_high": 0.0358108111,
+      "p_value": 5.96925177e-34
+    },
+    "ci_width_ratio_clustered_to_naive": 1.59024954,
+    "naive_understates_ci_width_by": 0.371167874
+  },
+  "guardrails": {
+    "label": "pre-registered",
+    "dispute_rate": {
+      "effect": {
+        "method": "delta_method_diff",
+        "control": 0.00357583456,
+        "treatment": 0.00466086625,
+        "diff": 0.0010850317,
+        "se": 0.000149643369,
+        "relative": 0.303434536,
+        "relative_se": 0.047674666,
+        "n_control": 99738,
+        "n_treatment": 100262,
+        "ci_low": 0.000791736084,
+        "ci_high": 0.00137832731,
+        "relative_ci_low": 0.209993907,
+        "relative_ci_high": 0.396875164,
+        "p_value": 4.14367006e-13
+      },
+      "non_inferiority": {
+        "estimate": 0.0010850317,
+        "bound": 0.00137832731,
+        "margin": 0.00214926,
+        "scale": "absolute",
+        "p_value": 5.7284586e-13,
+        "passed": true
+      }
+    },
+    "authorization_rate": {
+      "effect": {
+        "method": "delta_method_diff",
+        "control": 0.919010344,
+        "treatment": 0.913964502,
+        "diff": -0.00504584175,
+        "se": 0.000707004068,
+        "relative": -0.00549051682,
+        "relative_se": 0.000767156913,
+        "n_control": 99738,
+        "n_treatment": 100262,
+        "ci_low": -0.00643154426,
+        "ci_high": -0.00366013924,
+        "relative_ci_low": -0.00699411674,
+        "relative_ci_high": -0.0039869169,
+        "p_value": 9.54352709e-13
+      },
+      "non_inferiority": {
+        "estimate": -0.00504584175,
+        "bound": -0.00643154426,
+        "margin": -0.01,
+        "scale": "absolute",
+        "p_value": 1.21518976e-12,
+        "passed": true
+      }
+    },
+    "revenue_per_transaction": {
+      "effect": {
+        "method": "delta_method_diff",
+        "control": 68.1462336,
+        "treatment": 68.3674731,
+        "diff": 0.221239458,
+        "se": 0.144119539,
+        "relative": 0.00324653977,
+        "relative_se": 0.00211832919,
+        "n_control": 99738,
+        "n_treatment": 100262,
+        "ci_low": -0.0612296487,
+        "ci_high": 0.503708564,
+        "relative_ci_low": -0.000905309142,
+        "relative_ci_high": 0.00739838868,
+        "p_value": 0.12475662
+      },
+      "non_inferiority": {
+        "estimate": 0.00324653977,
+        "bound": -0.000905309142,
+        "margin": -0.02,
+        "scale": "relative",
+        "p_value": 2.54839529e-28,
+        "passed": true
+      },
+      "robustness": {
+        "effect": {
+          "method": "cluster_bootstrap",
+          "control": 68.1462336,
+          "treatment": 68.3674731,
+          "diff": 0.221239458,
+          "se": 0.142932691,
+          "relative": 0.00324653977,
+          "relative_se": 0.00210115566,
+          "n_control": 99738,
+          "n_treatment": 100262,
+          "ci_low": -0.0589034684,
+          "ci_high": 0.501382384,
+          "relative_ci_low": -0.000806907235,
+          "relative_ci_high": 0.00742565452,
+          "p_value": 0.121656575,
+          "relative_ci": [
+            -0.000806907235,
+            0.00742565452
+          ],
+          "reps": 2000
+        },
+        "passed": true
+      }
+    }
+  },
+  "economics": {
+    "label": "pre-registered",
+    "assumptions": {
+      "contribution_margin_rate": 0.3,
+      "processing_fee_rate": 0.029,
+      "processing_fee_fixed_usd": 0.3,
+      "dispute_fee_usd": 15.0,
+      "dispute_ops_cost_usd": 20.0,
+      "dispute_loss_rate": 0.7
+    },
+    "window": "steady_state",
+    "annual_sessions": 9841020.5,
+    "effect": {
+      "method": "delta_method_diff",
+      "control": 9.07950286,
+      "treatment": 9.30941954,
+      "diff": 0.229916685,
+      "se": 0.0345581406,
+      "relative": 0.0253226072,
+      "relative_se": 0.0038532797,
+      "n_control": 95736,
+      "n_treatment": 96244,
+      "ci_low": 0.162183974,
+      "ci_high": 0.297649395,
+      "relative_ci_low": 0.0177703178,
+      "relative_ci_high": 0.0328748967,
+      "p_value": 2.87100533e-11
+    },
+    "annualized": {
+      "per_session": 0.229916685,
+      "per_session_ci": [
+        0.162183974,
+        0.297649395
+      ],
+      "annual": 2262614.81,
+      "annual_ci": [
+        1596055.81,
+        2929173.8
+      ]
+    }
+  },
+  "risk_bands": {
+    "label": "pre-registered",
+    "dispute": {
+      "high": {
+        "method": "delta_method_diff",
+        "control": 0.0148101957,
+        "treatment": 0.0253425667,
+        "diff": 0.010532371,
+        "se": 0.0017341656,
+        "relative": 0.711156778,
+        "relative_se": 0.152736888,
+        "n_control": 6366,
+        "n_treatment": 6339,
+        "ci_low": 0.00713346891,
+        "ci_high": 0.0139312731,
+        "relative_ci_low": 0.411797979,
+        "relative_ci_high": 1.01051558,
+        "p_value": 1.2518965e-09
+      },
+      "low": {
+        "method": "delta_method_diff",
+        "control": 0.00199029931,
+        "treatment": 0.00200781293,
+        "diff": 1.75136129e-05,
+        "se": 0.000127061967,
+        "relative": 0.00879948699,
+        "relative_se": 0.0641258579,
+        "n_control": 51628,
+        "n_treatment": 51722,
+        "ci_low": -0.000231523265,
+        "ci_high": 0.000266550491,
+        "relative_ci_low": -0.116884885,
+        "relative_ci_high": 0.134483859,
+        "p_value": 0.890370656
+      },
+      "medium": {
+        "method": "delta_method_diff",
+        "control": 0.00558441874,
+        "treatment": 0.00775481774,
+        "diff": 0.002170399,
+        "se": 0.000335255277,
+        "relative": 0.388652624,
+        "relative_se": 0.0705837917,
+        "n_control": 41744,
+        "n_treatment": 42201,
+        "ci_low": 0.00151331073,
+        "ci_high": 0.00282748726,
+        "relative_ci_low": 0.250310934,
+        "relative_ci_high": 0.526994313,
+        "p_value": 9.55242534e-11
+      }
+    },
+    "net_value": {
+      "high": {
+        "method": "delta_method_diff",
+        "control": 5.02555878,
+        "treatment": 5.01253975,
+        "diff": -0.0130190278,
+        "se": 0.118251323,
+        "relative": -0.00259056324,
+        "relative_se": 0.0235015432,
+        "n_control": 6108,
+        "n_treatment": 6058,
+        "ci_low": -0.244787363,
+        "ci_high": 0.218749307,
+        "relative_ci_low": -0.0486527416,
+        "relative_ci_high": 0.0434716151,
+        "p_value": 0.912333038
+      },
+      "low": {
+        "method": "delta_method_diff",
+        "control": 10.0456088,
+        "treatment": 10.311552,
+        "diff": 0.265943209,
+        "se": 0.0451602703,
+        "relative": 0.0264735782,
+        "relative_se": 0.00455427867,
+        "n_control": 49568,
+        "n_treatment": 49699,
+        "ci_low": 0.177430705,
+        "ci_high": 0.354455712,
+        "relative_ci_low": 0.017547356,
+        "relative_ci_high": 0.0353998004,
+        "p_value": 3.88832257e-09
+      },
+      "medium": {
+        "method": "delta_method_diff",
+        "control": 8.11174209,
+        "treatment": 8.32961337,
+        "diff": 0.217871285,
+        "se": 0.0539299081,
+        "relative": 0.026858754,
+        "relative_se": 0.00673483223,
+        "n_control": 40060,
+        "n_treatment": 40487,
+        "ci_low": 0.112170608,
+        "ci_high": 0.323571963,
+        "relative_ci_low": 0.0136587254,
+        "relative_ci_high": 0.0400587826,
+        "p_value": 5.34746324e-05
+      }
+    },
+    "status": {
+      "high": {
+        "status": "harmful",
+        "significant": [
+          "dispute_above_margin"
+        ],
+        "holm_adjusted_p": {
+          "dispute_non_inferior": 1.0,
+          "dispute_above_margin": 2.00634999e-06,
+          "value_above_zero": 0.543833481,
+          "value_below_zero": 1.0
+        }
+      },
+      "low": {
+        "status": "qualifies",
+        "significant": [
+          "dispute_non_inferior",
+          "value_above_zero"
+        ],
+        "holm_adjusted_p": {
+          "dispute_non_inferior": 5.37339121e-63,
+          "dispute_above_margin": 1.0,
+          "value_above_zero": 5.83248386e-09,
+          "value_below_zero": 1.0
+        }
+      },
+      "medium": {
+        "status": "inconclusive",
+        "significant": [
+          "value_above_zero"
+        ],
+        "holm_adjusted_p": {
+          "dispute_non_inferior": 1.0,
+          "dispute_above_margin": 0.949723955,
+          "value_above_zero": 5.34746324e-05,
+          "value_below_zero": 1.0
+        }
+      }
+    }
+  },
+  "decision": {
+    "label": "pre-registered",
+    "decision": "SHIP TO SEGMENT",
+    "qualifying_segments": [
+      "low"
+    ],
+    "trail": [
+      "primary significant positive: True (p=5.97e-34, diff=+0.01571)",
+      "authorization_rate non-inferior: True (bound -0.00643 vs margin -0.0100)",
+      "revenue_per_transaction non-inferior: True (bound -0.00091 vs margin -0.0200)",
+      "dispute non-inferior overall: True (bound +0.00138)",
+      "annual net value CI above zero: True (CI [1596056.0, 2929174.0])",
+      "risk bands: {'high': 'harmful', 'low': 'qualifies', 'medium': 'inconclusive'}"
+    ],
+    "bands": {
+      "high": "harmful",
+      "low": "qualifies",
+      "medium": "inconclusive"
+    }
+  },
+  "decision_observed_loss_rate": {
+    "label": "amendment A1 (pre-unblinding)",
+    "dispute_loss_rate": 0.607143,
+    "economics": {
+      "effect": {
+        "method": "delta_method_diff",
+        "control": 9.0907695,
+        "treatment": 9.32469534,
+        "diff": 0.233925843,
+        "se": 0.0344364749,
+        "relative": 0.0257322378,
+        "relative_se": 0.00383576595,
+        "n_control": 95736,
+        "n_treatment": 96244,
+        "ci_low": 0.166431592,
+        "ci_high": 0.301420093,
+        "relative_ci_low": 0.0182142747,
+        "relative_ci_high": 0.0332502009,
+        "p_value": 1.098504e-11
+      },
+      "annualized": {
+        "per_session": 0.233925843,
+        "per_session_ci": [
+          0.166431592,
+          0.301420093
+        ],
+        "annual": 2302069.01,
+        "annual_ci": [
+          1637856.71,
+          2966281.31
+        ]
+      }
+    },
+    "band_status": {
+      "high": {
+        "status": "harmful",
+        "significant": [
+          "dispute_above_margin"
+        ],
+        "holm_adjusted_p": {
+          "dispute_non_inferior": 1.0,
+          "dispute_above_margin": 2.00634999e-06,
+          "value_above_zero": 0.455129299,
+          "value_below_zero": 1.0
+        }
+      },
+      "low": {
+        "status": "qualifies",
+        "significant": [
+          "dispute_non_inferior",
+          "value_above_zero"
+        ],
+        "holm_adjusted_p": {
+          "dispute_non_inferior": 5.37339121e-63,
+          "dispute_above_margin": 1.0,
+          "value_above_zero": 5.48268427e-09,
+          "value_below_zero": 1.0
+        }
+      },
+      "medium": {
+        "status": "inconclusive",
+        "significant": [
+          "value_above_zero"
+        ],
+        "holm_adjusted_p": {
+          "dispute_non_inferior": 1.0,
+          "dispute_above_margin": 0.949723955,
+          "value_above_zero": 2.72483147e-05,
+          "value_below_zero": 1.0
+        }
+      }
+    },
+    "decision": {
+      "decision": "SHIP TO SEGMENT",
+      "qualifying_segments": [
+        "low"
+      ],
+      "trail": [
+        "primary significant positive: True (p=5.97e-34, diff=+0.01571)",
+        "authorization_rate non-inferior: True (bound -0.00643 vs margin -0.0100)",
+        "revenue_per_transaction non-inferior: True (bound -0.00091 vs margin -0.0200)",
+        "dispute non-inferior overall: True (bound +0.00138)",
+        "annual net value CI above zero: True (CI [1637857.0, 2966281.0])",
+        "risk bands: {'high': 'harmful', 'low': 'qualifies', 'medium': 'inconclusive'}"
+      ],
+      "bands": {
+        "high": "harmful",
+        "low": "qualifies",
+        "medium": "inconclusive"
+      }
+    }
+  },
+  "sensitivity_grid": {
+    "label": "amendment A1 (pre-unblinding)",
+    "points": 27,
+    "decisions": {
+      "SHIP TO SEGMENT": 27
+    },
+    "primary_annual_net_value_percentile": 55.5555556
+  },
+  "secondary": {
+    "label": "pre-registered",
+    "weekly": {
+      "1": {
+        "method": "delta_method_diff",
+        "control": 0.520384362,
+        "treatment": 0.549393152,
+        "diff": 0.02900879,
+        "se": 0.00276109483,
+        "relative": 0.0557449303,
+        "relative_se": 0.00545550534,
+        "n_control": 40050,
+        "n_treatment": 40486,
+        "ci_low": 0.0235971435,
+        "ci_high": 0.0344204364,
+        "relative_ci_low": 0.0450523363,
+        "relative_ci_high": 0.0664375243,
+        "p_value": 8.08329651e-26
+      },
+      "2": {
+        "method": "delta_method_diff",
+        "control": 0.519539145,
+        "treatment": 0.535627969,
+        "diff": 0.0160888241,
+        "se": 0.0026822983,
+        "relative": 0.0309674917,
+        "relative_se": 0.00524304155,
+        "n_control": 42221,
+        "n_treatment": 42470,
+        "ci_low": 0.0108316161,
+        "ci_high": 0.0213460322,
+        "relative_ci_low": 0.0206913191,
+        "relative_ci_high": 0.0412436643,
+        "p_value": 1.99579676e-09
+      },
+      "3": {
+        "method": "delta_method_diff",
+        "control": 0.51709057,
+        "treatment": 0.53077277,
+        "diff": 0.0136821992,
+        "se": 0.00260916008,
+        "relative": 0.0264599666,
+        "relative_se": 0.00511317776,
+        "n_control": 44471,
+        "n_treatment": 44895,
+        "ci_low": 0.00856833946,
+        "ci_high": 0.018796059,
+        "relative_ci_low": 0.0164383224,
+        "relative_ci_high": 0.0364816109,
+        "p_value": 1.57209356e-07
+      },
+      "4": {
+        "method": "delta_method_diff",
+        "control": 0.511166744,
+        "treatment": 0.527656149,
+        "diff": 0.0164894059,
+        "se": 0.00254571119,
+        "relative": 0.0322583698,
+        "relative_se": 0.00506122809,
+        "n_control": 46495,
+        "n_treatment": 47025,
+        "ci_low": 0.0114999036,
+        "ci_high": 0.0214789081,
+        "relative_ci_low": 0.0223385451,
+        "relative_ci_high": 0.0421781946,
+        "p_value": 9.33612168e-11
+      },
+      "5": {
+        "method": "delta_method_diff",
+        "control": 0.508508695,
+        "treatment": 0.523651762,
+        "diff": 0.0151430661,
+        "se": 0.00248840925,
+        "relative": 0.0297793651,
+        "relative_se": 0.00496655542,
+        "n_control": 48656,
+        "n_treatment": 49083,
+        "ci_low": 0.0102658736,
+        "ci_high": 0.0200202586,
+        "relative_ci_low": 0.0200450954,
+        "relative_ci_high": 0.0395136349,
+        "p_value": 1.16171559e-09
+      },
+      "6": {
+        "method": "delta_method_diff",
+        "control": 0.506503092,
+        "treatment": 0.518361512,
+        "diff": 0.0118584203,
+        "se": 0.00244324546,
+        "relative": 0.0234123355,
+        "relative_se": 0.00488069301,
+        "n_control": 50549,
+        "n_treatment": 51313,
+        "ci_low": 0.00706974723,
+        "ci_high": 0.0166470934,
+        "relative_ci_low": 0.013846353,
+        "relative_ci_high": 0.0329783181,
+        "p_value": 1.21269164e-06
+      },
+      "7": {
+        "method": "delta_method_diff",
+        "control": 0.504236517,
+        "treatment": 0.51832162,
+        "diff": 0.0140851025,
+        "se": 0.00238957215,
+        "relative": 0.0279335232,
+        "relative_se": 0.00480610565,
+        "n_control": 52850,
+        "n_treatment": 53290,
+        "ci_low": 0.0094016271,
+        "ci_high": 0.0187685778,
+        "relative_ci_low": 0.0185137292,
+        "relative_ci_high": 0.0373533172,
+        "p_value": 3.76037281e-09
+      },
+      "8": {
+        "method": "delta_method_diff",
+        "control": 0.502034695,
+        "treatment": 0.514363326,
+        "diff": 0.0123286308,
+        "se": 0.00235424774,
+        "relative": 0.0245573283,
+        "relative_se": 0.00474760949,
+        "n_control": 55152,
+        "n_treatment": 55395,
+        "ci_low": 0.00771439006,
+        "ci_high": 0.0169428716,
+        "relative_ci_low": 0.0152521847,
+        "relative_ci_high": 0.033862472,
+        "p_value": 1.63419806e-07
+      }
+    },
+    "cuped": {
+      "method": "cuped_delta_method",
+      "control": 0.510736582,
+      "treatment": 0.525959175,
+      "diff": 0.0152225925,
+      "se": 0.00114899845,
+      "relative": 0.0298051735,
+      "relative_se": 0.00228339469,
+      "n_control": 99738,
+      "n_treatment": 100262,
+      "ci_low": 0.0129705969,
+      "ci_high": 0.017474588,
+      "relative_ci_low": 0.0253298022,
+      "relative_ci_high": 0.0342805449,
+      "p_value": 4.59850254e-40,
+      "theta": 0.320422745,
+      "variance_reduction": 0.210555757
+    },
+    "account_age_adjusted": {
+      "method": "regression_adjusted_delta_method",
+      "control": 0.510493281,
+      "treatment": 0.526240827,
+      "diff": 0.015747546,
+      "se": 0.00128693281,
+      "relative": 0.0308477048,
+      "relative_se": 0.00252095936,
+      "n_control": 99738,
+      "n_treatment": 100262,
+      "ci_low": 0.0132252041,
+      "ci_high": 0.018269888,
+      "relative_ci_low": 0.0259067153,
+      "relative_ci_high": 0.0357886943,
+      "p_value": 1.98419226e-34,
+      "covariates": [
+        "account_age_band"
+      ],
+      "unadjusted_treatment": 0.526201204
+    },
+    "steady_state": {
+      "method": "delta_method_diff",
+      "control": 0.507901937,
+      "treatment": 0.521785051,
+      "diff": 0.0138831141,
+      "se": 0.00135194881,
+      "relative": 0.0273342413,
+      "relative_se": 0.00269805072,
+      "n_control": 95736,
+      "n_treatment": 96244,
+      "ci_low": 0.0112333431,
+      "ci_high": 0.0165328851,
+      "relative_ci_low": 0.022046159,
+      "relative_ci_high": 0.0326223235,
+      "p_value": 9.72429653e-25
+    }
+  },
+  "early_dispute_read": {
+    "label": "pre-registered",
+    "reads": {
+      "naive_observed": {
+        "method": "delta_method_diff",
+        "control": 0.00164055429,
+        "treatment": 0.00200860545,
+        "diff": 0.000368051153,
+        "se": 9.75871109e-05,
+        "relative": 0.22434561,
+        "relative_se": 0.0658051652,
+        "n_control": 99738,
+        "n_treatment": 100262,
+        "ci_low": 0.000176783931,
+        "ci_high": 0.000559318376,
+        "relative_ci_low": 0.095369856,
+        "relative_ci_high": 0.353321363,
+        "p_value": 0.000162260064
+      },
+      "lag_adjusted": {
+        "method": "delta_method_diff",
+        "control": 0.00337378069,
+        "treatment": 0.00410814531,
+        "diff": 0.000734364622,
+        "se": 0.00020004896,
+        "relative": 0.217668156,
+        "relative_se": 0.0654345763,
+        "n_control": 99738,
+        "n_treatment": 100262,
+        "ci_low": 0.000342275866,
+        "ci_high": 0.00112645338,
+        "relative_ci_low": 0.0894187436,
+        "relative_ci_high": 0.345917569,
+        "p_value": 0.000241674751
+      },
+      "matured_final": {
+        "method": "delta_method_diff",
+        "control": 0.00357583456,
+        "treatment": 0.00466086625,
+        "diff": 0.0010850317,
+        "se": 0.000149643369,
+        "relative": 0.303434536,
+        "relative_se": 0.047674666,
+        "n_control": 99738,
+        "n_treatment": 100262,
+        "ci_low": 0.000791736084,
+        "ci_high": 0.00137832731,
+        "relative_ci_low": 0.209993907,
+        "relative_ci_high": 0.396875164,
+        "p_value": 4.14367006e-13
+      }
+    },
+    "arrival_curve": {
+      "n_disputes": 610,
+      "median_lag_days": 24.0547512,
+      "share_by_week": {
+        "7": 0.0,
+        "14": 0.172131148,
+        "21": 0.398360656,
+        "28": 0.603278689,
+        "35": 0.718032787,
+        "42": 0.837704918,
+        "49": 0.927868852,
+        "56": 0.975409836
+      }
+    },
+    "non_inferiority": {
+      "naive_observed": {
+        "estimate": 0.000368051153,
+        "bound": 0.000559318376,
+        "margin": 0.00214926,
+        "scale": "absolute",
+        "p_value": 9.88248667e-75,
+        "passed": true
+      },
+      "lag_adjusted": {
+        "estimate": 0.000734364622,
+        "bound": 0.00112645338,
+        "margin": 0.00214926,
+        "scale": "absolute",
+        "p_value": 7.59489651e-13,
+        "passed": true
+      },
+      "matured_final": {
+        "estimate": 0.0010850317,
+        "bound": 0.00137832731,
+        "margin": 0.00214926,
+        "scale": "absolute",
+        "p_value": 5.7284586e-13,
+        "passed": true
+      }
+    }
+  },
+  "dispute_mix_by_arm": {
+    "by_arm": {
+      "control": {
+        "disputes": 1371,
+        "median_lag_days": 25.5450231,
+        "share_fraudulent": 0.496717724
+      },
+      "treatment": {
+        "disputes": 1861,
+        "median_lag_days": 26.4564931,
+        "share_fraudulent": 0.632993015
+      }
+    },
+    "lag_ks_p_value": 0.0271337316,
+    "label": "exploratory"
+  }
+}
