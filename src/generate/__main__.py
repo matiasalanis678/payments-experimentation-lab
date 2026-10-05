@@ -18,11 +18,17 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--n-customers", type=int, help="override simulation.n_customers")
     parser.add_argument("--raw-dir", type=Path, help="override paths.raw_dir")
     parser.add_argument("--truth-dir", type=Path, help="override paths.truth_dir")
+    parser.add_argument("--hash-salt", help="override experiment.hash_salt")
     parser.add_argument("--skip-load", action="store_true", help="write parquet only")
     args = parser.parse_args(argv)
 
     settings = load_settings()
-    overrides = {"n_customers": args.n_customers, "raw_dir": args.raw_dir, "truth_dir": args.truth_dir}
+    overrides = {
+        "n_customers": args.n_customers,
+        "raw_dir": args.raw_dir,
+        "truth_dir": args.truth_dir,
+        "hash_salt": args.hash_salt,
+    }
     settings = dataclasses.replace(settings, **{k: v for k, v in overrides.items() if v is not None})
 
     t0 = time.perf_counter()

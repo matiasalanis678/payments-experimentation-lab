@@ -8,8 +8,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 EM_DASH = chr(0x2014)
 TRUTH_MARKERS = ("truth.yaml", "load_truth", "generate.truth", "customer_risk_tiers", "truth_dir")
-# The generator plants the effects, recovery checks them, and this file names the markers.
-TRUTH_ALLOWED = ("src/generate/", "tests/test_recovery.py", "tests/test_conventions.py")
+# The generator plants the effects, recovery checks them, hidden balance checks randomization,
+# and this file names the markers.
+TRUTH_ALLOWED = (
+    "src/generate/",
+    "tests/test_recovery.py",
+    "tests/test_hidden_balance.py",
+    "tests/test_conventions.py",
+)
 CODE_SUFFIXES = {".py", ".sql", ".sh", ".yml", ".yaml"}
 
 

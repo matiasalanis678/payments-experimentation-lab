@@ -9,7 +9,11 @@ experiment:
   name: Remove CVC field from checkout
   start_date: 2026-06-01        # a Monday
   weeks: 8
-  hash_salt: exp_remove_cvc_v1  # salt for customer-level hash bucketing
+  # Salt for customer-level hash bucketing. v1 failed the pre-experiment A/A check
+  # (pre-period conversion z = -4.18 clustered; observables balanced, no code leak), so the
+  # assignment was re-salted with a rule fixed in advance: first of v2, v3, ... with
+  # |z| < 2 and every observable covariate chi-square p > 0.05. See analysis/preperiod.py.
+  hash_salt: exp_remove_cvc_v2
   treatment_share: 0.5
   # control = CVC field shown, treatment = CVC field removed
 

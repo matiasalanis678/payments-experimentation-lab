@@ -165,6 +165,15 @@ def test_status_consistency(con: duckdb.DuckDBPyConnection) -> None:
     assert scalar(con, sql) == 0
 
 
+def test_no_treatment_logic_in_preperiod(con: duckdb.DuckDBPyConnection) -> None:
+    """Before launch every charge collects CVC: cvc_check is null only for Radar blocks (never sent)."""
+    sql = f"""
+        select count(*) from charges c join checkout_sessions s using (payment_intent)
+        where s.created < {START} and (c.cvc_check is null) <> (c.outcome_type = 'blocked')
+    """
+    assert scalar(con, sql) == 0
+
+
 def test_zero_decimal_currency_amounts(con: duckdb.DuckDBPyConnection) -> None:
     """JPY is stored in whole yen, so typical amounts are thousands, not hundreds of thousands."""
     median_jpy = scalar(con, "select median(amount_total) from checkout_sessions where currency = 'jpy'")

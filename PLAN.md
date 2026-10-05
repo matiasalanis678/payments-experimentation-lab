@@ -82,3 +82,11 @@ A merchant tests removing the CVC field from checkout (variant B). Hypothesis: c
 - No em dashes in any written docs or comments.
 - Small typed functions, docstrings on public functions.
 - Each phase ends with a review checkpoint before the next begins.
+
+## Amendments after Phase 1 (binding for later phases)
+1. Novelty: the planted +2.5% is the long-run (steady-state) lift with decaying novelty on top. Phase 4 pre-registers the full 8-week window as the primary analysis and "excluding weeks 1-2" as a sensitivity analysis. The pooled vs long-run gap is a memo finding.
+2. Pre-experiment A/A: salt exp_remove_cvc_v1 failed the pre-period A/A check (clustered z = -4.18). Diagnosis found no code leak: pre-period outcomes are bit-identical under any assignment, observables were balanced, and across 200 seeds the hidden-trait balance z has mean 0 and SD 1. It was an unlucky draw of hidden customer propensity and risk tier. Fix: re-salted with a rule fixed in advance (first of v2, v3, ... with |z| < 2 and every observable covariate chi-square p > 0.05), which selected v2. Permanent tests: tests/test_balance.py (pre-period A/A within 3 clustered SEs, observable balance) and tests/test_hidden_balance.py (hidden tier balance, truth exception in CONVENTIONS.md). Phase 4 discloses the re-salt as rerandomization.
+3. Peek disclosure: during Phase 1 calibration, treatment vs control in-window rates were viewed once (conversion, attempt, authorization, dispute rate) under salt v1, an assignment that was later discarded. preregistration.md must disclose what was seen and when, and state that the MDE and thresholds are set from control baselines only. No treatment vs control comparisons until the "pre-registration" commit.
+4. Exposure: Phase 2 adds first_exposure_at and is_exposed (at least one in-window session) to dim_experiment. SRM and all analysis use exposed customers only.
+5. README limitations must include: dispute lag capped at 60 days (real disputes can arrive later, so the matured rate is a floor), no payment retries (at most one charge per session), one card per customer, fixed FX rates.
+6. Push to the private GitHub repo after every phase.
