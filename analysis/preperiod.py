@@ -17,6 +17,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
+from analysis.population import EXPOSED_CUSTOMERS_SQL
 from analysis.stats import RatioDiff, clustered_ratio, diff_in_ratios
 from generate.assignment import CONTROL, TREATMENT, assign_variants
 from generate.settings import load_settings
@@ -40,7 +41,7 @@ class AAResult:
 
 def load_customers(con: duckdb.DuckDBPyConnection) -> pd.DataFrame:
     """One row per exposed customer: variant, observable covariates, and pre-period sessions and successes."""
-    return con.sql("""
+    return con.sql(f"""
         select
             e.customer_id,
             e.variant,
@@ -51,9 +52,8 @@ def load_customers(con: duckdb.DuckDBPyConnection) -> pd.DataFrame:
             c.account_age_band,
             e.pre_period_sessions,
             e.pre_period_successful_sessions
-        from marts.dim_experiment e
+        from ({EXPOSED_CUSTOMERS_SQL}) e
         join marts.dim_customers c using (customer_id)
-        where e.is_exposed
     """).df()
 
 

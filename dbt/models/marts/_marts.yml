@@ -168,10 +168,15 @@ models:
         description: Customer key.
         data_tests: [not_null]
       - name: created_at
-        description: Charge creation time (UTC); the semantic layer's metric_time.
+        description: Charge creation time (UTC).
         data_tests: [not_null]
       - name: charge_date
         description: UTC date of the charge.
+      - name: session_created_at
+        description: >
+          Creation time of the parent session. The semantic layer's metric_time for charges, so a charge
+          falls in the same period and week as its session even when it lands minutes later.
+        data_tests: [not_null]
       - name: period
         description: Period of the parent session (pre_period or experiment).
       - name: experiment_week

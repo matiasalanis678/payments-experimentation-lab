@@ -4,7 +4,13 @@ with charges as (
 ),
 
 sessions as (
-    select checkout_session_id, payment_intent_id, period, experiment_week from {{ ref('int_session_outcomes') }}
+    select
+        checkout_session_id,
+        payment_intent_id,
+        created_at as session_created_at,
+        period,
+        experiment_week
+    from {{ ref('int_session_outcomes') }}
 ),
 
 disputes as (
@@ -29,6 +35,7 @@ select
     charges.customer_id,
     charges.created_at,
     cast(charges.created_at as date) as charge_date,
+    sessions.session_created_at,
     sessions.period,
     sessions.experiment_week,
     experiment.experiment_id,

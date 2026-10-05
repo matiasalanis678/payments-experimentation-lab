@@ -1,0 +1,59 @@
+# The five standard queries, run by scripts/mf_queries.sh into reports/mf/.
+# Window dates must match config/settings.yaml (tests/test_dbt_config.py checks them).
+# Blindness: queries tagged `in_window_variant_split` compare treatment vs control inside the
+# experiment window. scripts/mf_queries.sh skips them until analysis.unblinded is true.
+saved_queries:
+  - name: weekly_kpis
+    description: Headline metrics by week, pooled across variants, pre-period and experiment window.
+    label: Weekly KPIs (pooled)
+    query_params:
+      metrics: [checkout_conversion_rate, authorization_rate, revenue_per_transaction, dispute_rate, total_payment_volume]
+      group_by: ["TimeDimension('metric_time', 'week')"]
+      where:
+        - "{{ TimeDimension('metric_time', 'day') }} < '2026-07-27'"
+
+  - name: preperiod_by_variant
+    description: Pre-period (A/A) metrics by variant for exposed customers. No treatment had been applied yet.
+    label: Pre-period A/A by variant
+    query_params:
+      metrics: [checkout_conversion_rate, authorization_rate, revenue_per_transaction, dispute_rate, sessions]
+      group_by: ["Dimension('customer__variant')"]
+      where:
+        - "{{ TimeDimension('metric_time', 'day') }} < '2026-06-01'"
+        - "{{ Dimension('customer__is_exposed') }} = true"
+
+  - name: experiment_scorecard_by_variant
+    description: In-window headline metrics by variant for exposed customers.
+    label: Experiment scorecard by variant
+    tags: [in_window_variant_split]
+    query_params:
+      metrics: [checkout_conversion_rate, authorization_rate, revenue_per_transaction, dispute_rate, dispute_rate_observed_at_experiment_end, total_payment_volume, sessions]
+      group_by: ["Dimension('customer__variant')"]
+      where:
+        - "{{ TimeDimension('metric_time', 'day') }} >= '2026-06-01'"
+        - "{{ TimeDimension('metric_time', 'day') }} < '2026-07-27'"
+        - "{{ Dimension('customer__is_exposed') }} = true"
+
+  - name: experiment_weekly_by_variant
+    description: In-window conversion and authorization by week and variant (novelty check).
+    label: Experiment weekly by variant
+    tags: [in_window_variant_split]
+    query_params:
+      metrics: [checkout_conversion_rate, authorization_rate, sessions]
+      group_by: ["TimeDimension('metric_time', 'week')", "Dimension('customer__variant')"]
+      where:
+        - "{{ TimeDimension('metric_time', 'day') }} >= '2026-06-01'"
+        - "{{ TimeDimension('metric_time', 'day') }} < '2026-07-27'"
+        - "{{ Dimension('customer__is_exposed') }} = true"
+
+  - name: experiment_country_by_variant
+    description: In-window conversion, authorization, and dispute rate by country and variant.
+    label: Experiment by country and variant
+    tags: [in_window_variant_split]
+    query_params:
+      metrics: [checkout_conversion_rate, authorization_rate, dispute_rate, sessions]
+      group_by: ["Dimension('customer__country')", "Dimension('customer__variant')"]
+      where:
+        - "{{ TimeDimension('metric_time', 'day') }} >= '2026-06-01'"
+        - "{{ TimeDimension('metric_time', 'day') }} < '2026-07-27'"
+        - "{{ Dimension('customer__is_exposed') }} = true"

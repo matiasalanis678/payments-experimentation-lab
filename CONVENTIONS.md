@@ -9,6 +9,8 @@ Payments experimentation lab: synthetic Stripe-like checkout data, a dbt + DuckD
 - No em dashes in any written docs or comments.
 - Small typed functions, docstrings on public functions.
 - Each phase ends with a review checkpoint before the next begins.
+- Blindness: no in-window treatment vs control comparison runs while `analysis.unblinded` is false in config/settings.yaml. Variant splits are pre-period only or tagged `in_window_variant_split` and gated in scripts/mf_queries.sh (tests/test_dbt_config.py enforces this).
+- Analysis population is exposed customers only: build every SRM and analysis input on `analysis.population.EXPOSED_CUSTOMERS_SQL`.
 
 ## Commands
 - `uv sync` installs dependencies (Python 3.12).
@@ -16,4 +18,5 @@ Payments experimentation lab: synthetic Stripe-like checkout data, a dbt + DuckD
 - `make generate` writes data/raw/*.parquet and loads data/warehouse.duckdb.
 - `make dbt` runs `dbt build` from inside dbt/ (all dbt and mf commands run from dbt/; the profile path is relative to it).
 - dbt vars in dbt/dbt_project.yml must match config/settings.yaml (tests/test_dbt_config.py).
+- `make semantic` runs `mf validate-configs`; `make mf-queries` runs scripts/mf_queries.sh into reports/mf/.
 - `make test` runs pytest; `make lint` runs ruff.

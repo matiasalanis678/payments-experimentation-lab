@@ -21,6 +21,9 @@ analysis:
   dispute_maturity_days: 60      # a charge is "matured" once this many days have passed
   analysis_date: 2026-09-25      # experiment end (2026-07-27) + 60 days
   pre_period_weeks: 4            # pre-experiment window kept for CUPED
+  # Blindness gate: in-window treatment vs control queries refuse to run until this is true.
+  # Flipped only after the "pre-registration" commit (Phase 5).
+  unblinded: false
 
 simulation:
   n_customers: 200000

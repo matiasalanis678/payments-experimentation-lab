@@ -27,6 +27,7 @@ class Settings:
     dispute_maturity_days: int
     analysis_date: date
     pre_period_weeks: int
+    unblinded: bool
     n_customers: int
     raw_dir: Path
     truth_dir: Path
@@ -63,6 +64,7 @@ def load_settings(path: Path = SETTINGS_PATH) -> Settings:
         dispute_maturity_days=int(analysis["dispute_maturity_days"]),
         analysis_date=analysis["analysis_date"],
         pre_period_weeks=int(analysis["pre_period_weeks"]),
+        unblinded=bool(analysis["unblinded"]),
         n_customers=int(raw["simulation"]["n_customers"]),
         raw_dir=PROJECT_ROOT / paths["raw_dir"],
         truth_dir=PROJECT_ROOT / paths["truth_dir"],

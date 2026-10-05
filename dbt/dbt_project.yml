@@ -31,3 +31,6 @@ models:
     marts:
       +schema: marts
       +materialized: table
+    semantic:
+      +schema: marts
+      +materialized: table

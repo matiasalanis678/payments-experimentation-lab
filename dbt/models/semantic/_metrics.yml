@@ -1,0 +1,102 @@
+metrics:
+  # Building blocks (simple metrics), also useful for count tie-outs.
+  - name: sessions
+    label: Checkout sessions
+    description: Count of checkout sessions.
+    type: simple
+    type_params:
+      measure: sessions
+  - name: successful_sessions
+    label: Successful sessions
+    description: Sessions that ended in a captured charge.
+    type: simple
+    type_params:
+      measure: successful_sessions
+  - name: attempted_charges
+    label: Attempted charges
+    description: Payment attempts.
+    type: simple
+    type_params:
+      measure: attempted_charges
+  - name: authorized_charges
+    label: Authorized charges
+    description: Charges authorized by the issuer.
+    type: simple
+    type_params:
+      measure: authorized_charges
+  - name: successful_charges
+    label: Successful charges
+    description: Captured charges.
+    type: simple
+    type_params:
+      measure: successful_charges
+  - name: disputed_charges
+    label: Disputed charges
+    description: Charges disputed on or before analysis_date (all charges, matured or not).
+    type: simple
+    type_params:
+      measure: disputed_charges
+  - name: disputed_charges_at_experiment_end
+    label: Disputed charges at experiment end
+    description: Charges disputed before the experiment ended.
+    type: simple
+    type_params:
+      measure: disputed_charges_at_experiment_end
+
+  # Headline metrics.
+  - name: checkout_conversion_rate
+    label: Checkout conversion rate
+    description: Successful sessions / sessions. Primary experiment metric.
+    type: ratio
+    type_params:
+      numerator: successful_sessions
+      denominator: sessions
+
+  - name: authorization_rate
+    label: Authorization rate
+    description: Authorized charges / attempted charges. Guardrail.
+    type: ratio
+    type_params:
+      numerator: authorized_charges
+      denominator: attempted_charges
+
+  - name: total_payment_volume
+    label: Total payment volume (USD)
+    description: Sum of captured amounts in USD.
+    type: simple
+    type_params:
+      measure: payment_volume_usd
+
+  - name: revenue_per_transaction
+    label: Revenue per transaction (USD)
+    description: Payment volume / successful charges. Guardrail.
+    type: ratio
+    type_params:
+      numerator: total_payment_volume
+      denominator: successful_charges
+
+  - name: dispute_rate
+    label: Dispute rate (matured charges)
+    description: >
+      Disputed charges / successful charges, counting only charges whose 60-day dispute window had
+      elapsed by analysis_date. Immature charges would understate the rate. Guardrail.
+    type: ratio
+    type_params:
+      numerator:
+        name: disputed_charges
+        filter: "{{ Dimension('charge__is_matured') }} = true"
+        alias: matured_disputed_charges
+      denominator:
+        name: successful_charges
+        filter: "{{ Dimension('charge__is_matured') }} = true"
+        alias: matured_successful_charges
+
+  - name: dispute_rate_observed_at_experiment_end
+    label: Dispute rate observed at experiment end (naive early read)
+    description: >
+      Disputes opened before the experiment ended / successful charges, with no maturity filter.
+      Shown only to illustrate how an early read understates dispute risk.
+    type: ratio
+    type_params:
+      numerator: disputed_charges_at_experiment_end
+      denominator: successful_charges

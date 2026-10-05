@@ -1,0 +1,38 @@
+unit_tests:
+  - name: dim_experiment_flags_never_exposed_customers
+    description: >
+      Assigned customers without an in-window session (pre-period only, or no sessions at all)
+      must get is_exposed = false and zero experiment sessions.
+    model: dim_experiment
+    given:
+      - input: ref('stg_assignments')
+        rows:
+          - {customer_id: cus_exposed, experiment_id: exp_remove_cvc, variant: control, assigned_at: "2026-06-03 10:00:00"}
+          - {customer_id: cus_pre_only, experiment_id: exp_remove_cvc, variant: treatment, assigned_at: "2026-06-05 09:00:00"}
+          - {customer_id: cus_no_sessions, experiment_id: exp_remove_cvc, variant: control, assigned_at: "2026-06-07 08:00:00"}
+          - {customer_id: cus_other_exp, experiment_id: exp_other, variant: treatment, assigned_at: "2026-06-07 08:00:00"}
+      - input: ref('int_customer_exposure')
+        rows:
+          - {customer_id: cus_exposed, first_exposure_at: "2026-06-03 10:00:00", experiment_sessions: 4, pre_period_sessions: 2, pre_period_successful_sessions: 1}
+          - {customer_id: cus_pre_only, first_exposure_at: null, experiment_sessions: 0, pre_period_sessions: 3, pre_period_successful_sessions: 2}
+    expect:
+      rows:
+        - {customer_id: cus_exposed, is_exposed: true, experiment_sessions: 4, pre_period_sessions: 2}
+        - {customer_id: cus_pre_only, is_exposed: false, experiment_sessions: 0, pre_period_sessions: 3}
+        - {customer_id: cus_no_sessions, is_exposed: false, experiment_sessions: 0, pre_period_sessions: 0}
+
+  - name: int_customer_exposure_ignores_pre_period_sessions
+    description: First exposure is the first in-window session; pre-period sessions never count as exposure.
+    model: int_customer_exposure
+    given:
+      - input: ref('int_session_outcomes')
+        rows:
+          - {customer_id: cus_a, created_at: "2026-05-10 12:00:00", period: pre_period, is_succeeded: true}
+          - {customer_id: cus_a, created_at: "2026-06-02 12:00:00", period: experiment, is_succeeded: false}
+          - {customer_id: cus_a, created_at: "2026-06-09 12:00:00", period: experiment, is_succeeded: true}
+          - {customer_id: cus_b, created_at: "2026-05-20 12:00:00", period: pre_period, is_succeeded: true}
+          - {customer_id: cus_b, created_at: "2026-05-21 12:00:00", period: pre_period, is_succeeded: false}
+    expect:
+      rows:
+        - {customer_id: cus_a, first_exposure_at: "2026-06-02 12:00:00", experiment_sessions: 2, pre_period_sessions: 1, pre_period_successful_sessions: 1}
+        - {customer_id: cus_b, first_exposure_at: null, experiment_sessions: 0, pre_period_sessions: 2, pre_period_successful_sessions: 1}

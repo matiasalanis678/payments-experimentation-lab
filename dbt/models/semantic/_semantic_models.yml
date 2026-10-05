@@ -1,0 +1,154 @@
+models:
+  - name: metricflow_time_spine
+    description: One row per day from 2026-01-01 through 2026-12-31. MetricFlow uses it for time grains and gaps.
+    time_spine:
+      standard_granularity_column: date_day
+    columns:
+      - name: date_day
+        description: Calendar day.
+        granularity: day
+        data_tests: [unique, not_null]
+
+semantic_models:
+  # Dimension tables: one row per customer, joined to the facts through the `customer` entity.
+  - name: customers
+    description: Observable, pre-treatment customer attributes (dim_customers).
+    model: ref('dim_customers')
+    entities:
+      - name: customer
+        type: primary
+        expr: customer_id
+    dimensions:
+      - name: country
+        type: categorical
+        description: Customer country.
+      - name: card_brand
+        type: categorical
+        description: Default card brand.
+      - name: card_funding
+        type: categorical
+        description: Default card funding type (credit, debit, prepaid).
+      - name: is_returning
+        type: categorical
+        description: Account existed before the experiment started.
+      - name: account_age_band
+        type: categorical
+        description: Account age at first exposure (new, 0-90d, 90-365d, 365d+).
+      - name: risk_score_band
+        type: categorical
+        description: Observable rule-based risk band (low, medium, high).
+
+  - name: experiment_assignments
+    description: Experiment bucketing and exposure (dim_experiment).
+    model: ref('dim_experiment')
+    entities:
+      - name: customer
+        type: primary
+        expr: customer_id
+    dimensions:
+      - name: variant
+        type: categorical
+        description: control (CVC shown) or treatment (CVC removed).
+      - name: is_exposed
+        type: categorical
+        description: Customer had at least one in-window session; filter to true for experiment analysis.
+
+  # Fact tables. metric_time is the session creation time for both, so a charge always lands in its session's period.
+  - name: checkout_sessions
+    description: One row per checkout session (fct_checkout_sessions).
+    model: ref('fct_checkout_sessions')
+    defaults:
+      agg_time_dimension: session_created_at
+    entities:
+      - name: checkout_session
+        type: primary
+        expr: checkout_session_id
+      - name: customer
+        type: foreign
+        expr: customer_id
+    dimensions:
+      - name: session_created_at
+        type: time
+        expr: created_at
+        type_params:
+          time_granularity: day
+      - name: period
+        type: categorical
+        description: pre_period or experiment.
+      - name: experiment_week
+        type: categorical
+        description: 1-based experiment week, null outside the window.
+    measures:
+      - name: sessions
+        description: Checkout sessions.
+        agg: sum
+        expr: "1"
+      - name: attempted_sessions
+        description: Sessions where the customer submitted payment.
+        agg: sum
+        expr: "case when is_attempted then 1 else 0 end"
+      - name: successful_sessions
+        description: Sessions that ended in a captured charge.
+        agg: sum
+        expr: "case when is_succeeded then 1 else 0 end"
+
+  - name: charges
+    description: One row per charge, i.e. payment attempt (fct_charges).
+    model: ref('fct_charges')
+    defaults:
+      agg_time_dimension: session_created_at
+    entities:
+      - name: charge
+        type: primary
+        expr: charge_id
+      - name: checkout_session
+        type: foreign
+        expr: checkout_session_id
+      - name: customer
+        type: foreign
+        expr: customer_id
+    dimensions:
+      - name: session_created_at
+        type: time
+        type_params:
+          time_granularity: day
+      - name: period
+        type: categorical
+        description: Period of the parent session.
+      - name: experiment_week
+        type: categorical
+        description: Experiment week of the parent session.
+      - name: is_matured
+        type: categorical
+        description: The 60-day dispute window had elapsed by analysis_date.
+      - name: outcome_type
+        type: categorical
+        description: Stripe outcome.type (authorized, issuer_declined, blocked).
+      - name: card_country
+        type: categorical
+        description: Card issuing country.
+    measures:
+      - name: attempted_charges
+        description: Payment attempts.
+        agg: sum
+        expr: "1"
+      - name: authorized_charges
+        description: Charges authorized by the issuer.
+        agg: sum
+        expr: "case when is_authorized then 1 else 0 end"
+      - name: successful_charges
+        description: Captured charges (successful payments).
+        agg: sum
+        expr: "case when is_captured then 1 else 0 end"
+      - name: payment_volume_usd
+        description: Captured amount in USD.
+        agg: sum
+        expr: captured_amount_usd
+      - name: disputed_charges
+        description: Charges disputed on or before analysis_date.
+        agg: sum
+        expr: "case when is_disputed then 1 else 0 end"
+      - name: disputed_charges_at_experiment_end
+        description: Charges disputed before the experiment ended (naive early read).
+        agg: sum
+        expr: "case when is_disputed_at_experiment_end then 1 else 0 end"
