@@ -19,6 +19,7 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--raw-dir", type=Path, help="override paths.raw_dir")
     parser.add_argument("--truth-dir", type=Path, help="override paths.truth_dir")
     parser.add_argument("--hash-salt", help="override experiment.hash_salt")
+    parser.add_argument("--seed", type=int, help="override the master seed (coverage simulations)")
     parser.add_argument("--skip-load", action="store_true", help="write parquet only")
     args = parser.parse_args(argv)
 
@@ -28,6 +29,7 @@ def main(argv: list[str] | None = None) -> None:
         "raw_dir": args.raw_dir,
         "truth_dir": args.truth_dir,
         "hash_salt": args.hash_salt,
+        "seed": args.seed,
     }
     settings = dataclasses.replace(settings, **{k: v for k, v in overrides.items() if v is not None})
 

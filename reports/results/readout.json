@@ -1,0 +1,60 @@
+{
+  "label": "exploratory",
+  "band_annual_values": {
+    "high": {
+      "annual_sessions": 457397.83951335,
+      "per_session": -0.0130190278,
+      "annual": -5954.875188284242,
+      "annual_ci": [
+        -111965.2105208993,
+        100055.46014433082
+      ],
+      "status": "harmful"
+    },
+    "low": {
+      "annual_sessions": 5981628.126433,
+      "per_session": 0.265943209,
+      "annual": 1590773.37898825,
+      "annual_ci": [
+        1061324.4995877822,
+        2120222.2583887177
+      ],
+      "status": "qualifies"
+    },
+    "medium": {
+      "annual_sessions": 3401991.5817474998,
+      "per_session": 0.217871285,
+      "annual": 741196.2774745104,
+      "annual_ci": [
+        381603.46221148566,
+        1100789.092737535
+      ],
+      "status": "inconclusive"
+    }
+  },
+  "follow_up_designs": [
+    {
+      "band": "medium",
+      "planning_lift_relative": 0.0273342413,
+      "band_revenue_per_transaction_usd": 65.79052536312359,
+      "band_control_dispute_rate": 0.00558441874,
+      "planning_dispute_difference": 0.002170399,
+      "margin_absolute": 0.005605643967448731,
+      "frozen_margin_absolute": 0.00214926,
+      "alpha_one_sided": 0.025,
+      "power": 0.8,
+      "dispute_ni_charges_per_arm": 8845.21837027451,
+      "dispute_ni_sessions_per_arm": 18614.070175303405,
+      "planning_net_value_per_session": 0.217871285,
+      "net_value_sessions_per_arm": 104558.30798574294,
+      "band_sessions_per_day": 9320.5248815,
+      "analysis_days_needed": 23,
+      "burn_in_days": 14,
+      "run_weeks": 6,
+      "maturity_days": 60,
+      "days_launch_to_readout": 102,
+      "binding_constraint": "net value",
+      "label": "exploratory"
+    }
+  ]
+}

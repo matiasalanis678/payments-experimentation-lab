@@ -43,4 +43,8 @@ select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-markers = ["full_data: needs the full dataset in data/raw (run `make generate` first)"]
+markers = [
+    "full_data: needs the full dataset in data/raw (run `make generate` first)",
+    "slow: long-running simulation, run with `make coverage`",
+]
+addopts = "-m 'not slow'"

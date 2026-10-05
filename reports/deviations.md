@@ -17,6 +17,12 @@ Labeled `exploratory`.
 1. **Dispute reason and lag mix by arm**, with a two-sample KS test on lags. preregistration.md section 7 describes this check for the early-read hypothesis, but prereg.yaml does not specify it.
 2. **Segment tables.** prereg.yaml fixes the dimensions, metrics, Holm correction, and families. It does not fix the test for the descriptive segment table, so each level reports a two-sided test of zero difference, Holm-adjusted within its (dimension, metric) family. The decision-relevant risk band tests are the one-sided tests in `decision_rules`, unchanged.
 
+3. **Readout sizing and the follow-up design** (reports/experiment_readout.md, reports/results/readout.json). Annual value per risk band (band net value per session times the band's share of annual sessions), the value of shipping to the qualifying band, the value pending on the inconclusive band, and the design of a confirmatory test for that band (break-even margin at the observed weeks 3 to 8 lift with the band's own revenue per transaction and dispute baseline; sample size from the observed clustered standard errors). These are not in prereg.yaml; the memo labels them exploratory.
+
+## Post-hoc method validation (added after seeing the recovery miss)
+
+**CI coverage simulation** (`make coverage`, reports/coverage.md). Added after the overall dispute CI missed its planted value, to test whether the miss reflected chance or a miscalibrated estimator. It reruns the generator, dbt, and the pre-registered estimators on 200 independent seeds at a quarter of full scale (50,000 customers each, no A/A re-randomization) and reports empirical 95% CI coverage with Clopper-Pearson intervals. The pass criterion (nominal 95% inside the 99% Clopper-Pearson interval for each pre-registered CI) was written before the simulation ran. It is exploratory, is not part of `make all`, and changed no analysis choice.
+
 ## Implementation choices within the plan
 
 Recorded for transparency; none changes a pre-registered parameter.
