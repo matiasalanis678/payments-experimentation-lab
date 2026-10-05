@@ -336,6 +336,7 @@ def render_memo(
         f"of disputes are lost; the observed rate is {obs['dispute_loss_rate']:.0%}. The decision is unchanged at "
         f"{obs['dispute_loss_rate']:.0%} ({_usd_m(obs['economics']['annualized']['annual'])} a year overall).",
         "- **Disputes after 60 days are not counted**, so the matured dispute rate is a floor.",
+        _coverage_risk(coverage),
         f"- **Low-risk disputes are flat but not zero-risk:** the CI allows up to "
         f"{100 * results['risk_bands']['dispute'][qualifies[0]]['ci_high']:+.3f}pp. Monitor through rollout."
         if qualifies
@@ -420,6 +421,20 @@ def _coverage(coverage: dict[str, Any] | None, quantity: str) -> float:
 def _guardrail_label(key: str, spec: dict[str, Any]) -> str:
     """Display name; the matured-population guardrail says so."""
     return key.replace("_", " ").capitalize() + (" (matured)" if "population" in spec else "")
+
+
+def _coverage_risk(coverage: dict[str, Any] | None) -> str | None:
+    """Risk bullet for the lowest simulated CI coverage among pre-registered CIs."""
+    if not coverage:
+        return None
+    checked = [r for r in coverage["coverage"] if "(extra)" not in r["quantity"]]
+    low = min(r["coverage"] for r in checked)
+    names = sorted({r["quantity"].split("_")[0] for r in checked if r["coverage"] == low})
+    return (
+        f"- **Slightly narrow intervals.** In simulation, {_join(names)} CIs covered the truth {low:.0%} of the time: "
+        "inside the pre-set pass criterion but a little below the nominal 95%, plausibly small-sample behavior of the "
+        f"delta method at {coverage['customers_per_seed']:,} customers per simulated world."
+    )
 
 
 def _dispute_metric(prereg: dict[str, Any]) -> str:

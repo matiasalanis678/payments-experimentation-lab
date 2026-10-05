@@ -45,6 +45,7 @@ The overall averages hide where the risk sits. By observable risk band:
 - **Risk score built with generator knowledge.** The band rules (new account, prepaid card, BR or MX) were chosen by someone who knew how risk was simulated. A real team would derive them from history and Radar.
 - **Loss-rate assumption.** The model assumes 70% of disputes are lost; the observed rate is 61%. The decision is unchanged at 61% ($2.30M a year overall).
 - **Disputes after 60 days are not counted**, so the matured dispute rate is a floor.
+- **Slightly narrow intervals.** In simulation, authorization and conversion CIs covered the truth 92% of the time: inside the pre-set pass criterion but a little below the nominal 95%, plausibly small-sample behavior of the delta method at 50,000 customers per simulated world.
 - **Low-risk disputes are flat but not zero-risk:** the CI allows up to +0.027pp. Monitor through rollout.
 
 ## Next steps
