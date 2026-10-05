@@ -1,0 +1,33 @@
+name: payments_lab
+version: "1.0.0"
+config-version: 2
+profile: payments_lab
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+target-path: target
+clean-targets: ["target", "dbt_packages"]
+
+# Must match config/settings.yaml (tests/test_dbt_config.py enforces this).
+# Override analysis_date at run time for an as-of rebuild, e.g.
+#   dbt build --vars '{analysis_date: "2026-08-15"}'
+vars:
+  experiment_id: exp_remove_cvc
+  experiment_start_date: "2026-06-01"
+  experiment_end_date: "2026-07-27"   # exclusive
+  pre_period_start_date: "2026-05-04"
+  analysis_date: "2026-09-25"         # inclusive: data observed through the end of this day
+  dispute_maturity_days: 60
+
+models:
+  payments_lab:
+    staging:
+      +schema: staging
+      +materialized: view
+    intermediate:
+      +schema: intermediate
+      +materialized: view
+    marts:
+      +schema: marts
+      +materialized: table

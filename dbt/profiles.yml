@@ -1,0 +1,8 @@
+payments_lab:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      # Relative to the dbt/ directory, where every dbt and mf command runs.
+      path: "{{ env_var('DBT_DUCKDB_PATH', '../data/warehouse.duckdb') }}"
+      threads: 4

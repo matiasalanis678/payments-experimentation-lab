@@ -14,4 +14,6 @@ Payments experimentation lab: synthetic Stripe-like checkout data, a dbt + DuckD
 - `uv sync` installs dependencies (Python 3.12).
 - `make all` rebuilds everything from scratch.
 - `make generate` writes data/raw/*.parquet and loads data/warehouse.duckdb.
+- `make dbt` runs `dbt build` from inside dbt/ (all dbt and mf commands run from dbt/; the profile path is relative to it).
+- dbt vars in dbt/dbt_project.yml must match config/settings.yaml (tests/test_dbt_config.py).
 - `make test` runs pytest; `make lint` runs ruff.

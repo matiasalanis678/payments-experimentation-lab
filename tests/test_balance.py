@@ -1,4 +1,4 @@
-"""Permanent pre-experiment A/A checks on the generated warehouse (observable data only)."""
+"""Permanent pre-experiment A/A checks on exposed customers in the dbt marts (observable data only)."""
 
 from __future__ import annotations
 
@@ -12,16 +12,14 @@ from generate.settings import load_settings
 SETTINGS = load_settings()
 pytestmark = [
     pytest.mark.full_data,
-    pytest.mark.skipif(not SETTINGS.warehouse_path.exists(), reason="warehouse missing; run `make generate`"),
+    pytest.mark.skipif(not SETTINGS.warehouse_path.exists(), reason="warehouse missing; run `make generate dbt`"),
 ]
 
 
 @pytest.fixture(scope="module")
 def aa() -> AAResult:
     with duckdb.connect(str(SETTINGS.warehouse_path), read_only=True) as con:
-        customers = load_customers(con, SETTINGS)
-        variants = con.sql("select customer_id, variant from raw.experiment_assignments").df()
-    customers = customers.merge(variants, on="customer_id", validate="one_to_one")
+        customers = load_customers(con)
     return aa_check(customers, customers["variant"].to_numpy())
 
 

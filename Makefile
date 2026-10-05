@@ -1,12 +1,21 @@
-.PHONY: all install generate test test-fast lint format clean
+# Homebrew tools (gh) live outside the default non-login PATH on Apple Silicon.
+export PATH := /opt/homebrew/bin:$(PATH)
 
-all: clean install generate lint test
+.PHONY: all install generate dbt dbt-docs test test-fast lint format clean
+
+all: clean install generate dbt lint test
 
 install:
 	uv sync
 
 generate:
 	uv run python -m generate
+
+dbt:
+	cd dbt && uv run dbt build
+
+dbt-docs:
+	cd dbt && uv run dbt docs generate
 
 test:
 	uv run pytest -q
@@ -23,4 +32,4 @@ format:
 	uv run ruff format .
 
 clean:
-	rm -rf data/raw data/truth data/warehouse.duckdb data/warehouse.duckdb.wal
+	rm -rf data/raw data/truth data/warehouse.duckdb data/warehouse.duckdb.wal dbt/target dbt/logs

@@ -1,0 +1,84 @@
+models:
+  - name: int_session_outcomes
+    description: >
+      One row per checkout session joined to its charge (if any), with funnel flags
+      session -> attempted -> authorized -> succeeded, the experiment period, and USD amounts.
+    columns:
+      - name: checkout_session_id
+        description: Session key.
+        data_tests: [unique, not_null]
+      - name: customer_id
+        description: Customer who opened the session.
+      - name: payment_intent_id
+        description: PaymentIntent linking the session to its charge.
+      - name: created_at
+        description: Session creation time (UTC).
+      - name: period
+        description: pre_period (before experiment start), experiment (inside the window), or post_experiment.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [pre_period, experiment]
+      - name: experiment_week
+        description: 1-based experiment week for in-window sessions (1 to 8); null otherwise.
+      - name: charge_id
+        description: The session's charge, null if the customer never submitted payment.
+      - name: is_attempted
+        description: The customer submitted payment (a charge exists).
+      - name: is_authorized
+        description: The charge was authorized by the issuer.
+      - name: is_succeeded
+        description: The charge was captured. This is the conversion event.
+      - name: currency
+        description: Session currency.
+      - name: amount_total_usd
+        description: Cart total converted to USD.
+      - name: succeeded_amount_usd
+        description: Captured amount in USD (0 unless the session succeeded).
+
+  - name: int_charge_disputes
+    description: >
+      One row per charge with its dispute (if any) and maturity flags at two vantage points.
+      Final read: as of the end of var analysis_date. Early read: as of experiment end.
+      A charge is matured once var dispute_maturity_days have passed since it was created.
+    columns:
+      - name: charge_id
+        description: Charge key.
+        data_tests: [unique, not_null]
+      - name: charge_created_at
+        description: Charge creation time (UTC).
+      - name: dispute_id
+        description: Dispute on this charge, null if none was ever opened.
+      - name: dispute_created_at
+        description: When the dispute was opened.
+      - name: dispute_reason
+        description: Stripe dispute reason.
+      - name: dispute_status
+        description: Dispute status as of the snapshot.
+      - name: dispute_amount_minor
+        description: Disputed amount in minor units.
+      - name: dispute_lag_days
+        description: Days from charge to dispute (fractional).
+      - name: is_disputed
+        description: A dispute was opened on or before analysis_date.
+      - name: is_matured
+        description: At least dispute_maturity_days elapsed between the charge and the end of analysis_date.
+      - name: is_disputed_at_experiment_end
+        description: A dispute was opened before the experiment ended (what an early read would see).
+      - name: is_matured_at_experiment_end
+        description: The charge had matured by the experiment end. False for every in-window charge, since the window is shorter than the maturity period.
+
+  - name: int_customer_exposure
+    description: One row per customer with at least one session; first in-window exposure and pre-period activity.
+    columns:
+      - name: customer_id
+        description: Customer key.
+        data_tests: [unique, not_null]
+      - name: first_exposure_at
+        description: First in-window checkout session (null if the customer never visited during the experiment).
+      - name: experiment_sessions
+        description: Number of in-window checkout sessions.
+      - name: pre_period_sessions
+        description: Number of pre-period checkout sessions.
+      - name: pre_period_successful_sessions
+        description: Number of pre-period sessions that ended in a captured charge (CUPED covariate).

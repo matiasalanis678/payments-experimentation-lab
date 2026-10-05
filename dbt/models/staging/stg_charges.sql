@@ -1,0 +1,21 @@
+select
+    id as charge_id,
+    payment_intent as payment_intent_id,
+    customer as customer_id,
+    {{ epoch_to_timestamp('created') }} as created_at,
+    amount as amount_minor,
+    amount_captured as amount_captured_minor,
+    currency,
+    status,
+    status = 'succeeded' as is_authorized,
+    captured as is_captured,
+    outcome_type,
+    outcome_reason,
+    outcome_network_status,
+    outcome_risk_level,
+    failure_code,
+    card_brand,
+    card_country,
+    card_funding,
+    cvc_check
+from {{ source('stripe', 'charges') }}

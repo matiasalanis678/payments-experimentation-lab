@@ -1,0 +1,20 @@
+sources:
+  - name: stripe
+    description: >
+      Raw Stripe-shaped objects loaded by `python -m generate` into the `raw` schema of the DuckDB
+      warehouse. Timestamps are Unix seconds and amounts are integers in the currency's minor unit,
+      as in the Stripe API.
+    schema: raw
+    tables:
+      - name: customers
+        description: Stripe Customer objects, one per customer in the experiment population.
+      - name: checkout_sessions
+        description: Stripe Checkout Session objects (pre-period and experiment window).
+      - name: charges
+        description: Stripe Charge objects with the `outcome` and card details flattened. At most one per session.
+      - name: disputes
+        description: Stripe Dispute objects, snapshot as of the end of analysis_date.
+      - name: experiment_assignments
+        description: Experiment bucketing log, one row per customer (hash of customer id, 50/50).
+      - name: fx_rates
+        description: Reference table of currency minor-unit exponents and fixed USD rates.
