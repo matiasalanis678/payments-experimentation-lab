@@ -23,7 +23,7 @@ analysis:
   pre_period_weeks: 4            # pre-experiment window kept for CUPED
   # Blindness gate: in-window treatment vs control queries refuse to run until this is true.
   # Flipped only after the "pre-registration" commit (Phase 5).
-  unblinded: false
+  unblinded: true
 
 simulation:
   n_customers: 200000
